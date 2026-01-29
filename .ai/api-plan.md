@@ -328,7 +328,7 @@ Global stats across saved plans.
     ```
 - Errors: 401
 
-**GET `/api/plans/{planId}/stats`**  
+**GET `/api/stats/plans/{planId}`**  
 Stats for a single plan.
 - Response 200: same shape as `/api/stats` with `scope: "plan"` and `planId`
 - Errors: 401, 404
