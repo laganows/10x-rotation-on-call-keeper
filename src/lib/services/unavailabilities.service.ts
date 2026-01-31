@@ -10,13 +10,6 @@ import type {
   UserId,
 } from "../../types";
 
-interface SupabaseError {
-  message: string;
-  code?: string | null;
-  details?: string | null;
-  hint?: string | null;
-}
-
 export type DomainErrorCode = "not_found" | "conflict" | "unprocessable_entity";
 export interface DomainError {
   code: DomainErrorCode;
@@ -33,10 +26,7 @@ const mapUnavailabilityToDto = (row: DbUnavailability): UnavailabilityDto => ({
   createdAt: row.created_at,
 });
 
-const getTeamForOwner = async (
-  supabase: SupabaseClient,
-  userId: UserId
-): Promise<{ teamId: TeamId } | null> => {
+const getTeamForOwner = async (supabase: SupabaseClient, userId: UserId): Promise<{ teamId: TeamId } | null> => {
   const { data, error } = await supabase.from("teams").select("team_id").eq("owner_id", userId).maybeSingle();
 
   if (error || !data) {
@@ -46,11 +36,7 @@ const getTeamForOwner = async (
   return { teamId: data.team_id };
 };
 
-const ensureActiveMember = async (
-  supabase: SupabaseClient,
-  teamId: TeamId,
-  memberId: MemberId
-): Promise<boolean> => {
+const ensureActiveMember = async (supabase: SupabaseClient, teamId: TeamId, memberId: MemberId): Promise<boolean> => {
   const { data, error } = await supabase
     .from("members")
     .select("member_id")
@@ -161,7 +147,10 @@ export const createUnavailability = async (
   }
 
   if (!data) {
-    return { data: null, error: { code: "unprocessable_entity", message: "Unavailability creation returned no data." } };
+    return {
+      data: null,
+      error: { code: "unprocessable_entity", message: "Unavailability creation returned no data." },
+    };
   }
 
   return { data: { item: mapUnavailabilityToDto(data), wasExisting: false }, error: null };
@@ -197,4 +186,3 @@ export const deleteUnavailability = async (
 
   return { data: null, error: null };
 };
-

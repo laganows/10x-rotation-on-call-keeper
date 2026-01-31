@@ -11,7 +11,26 @@ import type {
   UnavailabilityOnConflict,
 } from "../../types";
 
-const yyyyMmDdSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format. Use YYYY-MM-DD.");
+const isValidYyyyMmDd = (value: string) => {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) return false;
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+
+  if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) return false;
+  if (month < 1 || month > 12) return false;
+  if (day < 1 || day > 31) return false;
+
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
+};
+
+const yyyyMmDdSchema = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format. Use YYYY-MM-DD.")
+  .refine(isValidYyyyMmDd, "Invalid date value.");
 const uuidSchema = z.string().uuid();
 
 const numberFromString = () =>
@@ -78,4 +97,3 @@ export const unavailabilitiesCreateQuerySchema: z.ZodType<UnavailabilitiesCreate
   .transform((q) => ({
     onConflict: q.onConflict ?? "error",
   }));
-
