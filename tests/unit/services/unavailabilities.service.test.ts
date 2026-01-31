@@ -1,9 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import {
-  createUnavailability,
-  deleteUnavailability,
-} from "@/lib/services/unavailabilities.service";
+import { createUnavailability, deleteUnavailability } from "@/lib/services/unavailabilities.service";
 
 describe("unavailabilities.service", () => {
   it("returns existing item when onConflict is ignore and record already exists", async () => {
@@ -68,13 +65,7 @@ describe("unavailabilities.service", () => {
       }),
     };
 
-    const result = await createUnavailability(
-      supabase as never,
-      "user-1",
-      "member-1",
-      "2024-01-10",
-      "ignore"
-    );
+    const result = await createUnavailability(supabase as never, "user-1", "member-1", "2024-01-10", "ignore");
 
     expect(result).toMatchInlineSnapshot(`
 {
@@ -124,13 +115,7 @@ describe("unavailabilities.service", () => {
       }),
     };
 
-    const result = await createUnavailability(
-      supabase as never,
-      "user-1",
-      "member-1",
-      "2024-01-10",
-      "error"
-    );
+    const result = await createUnavailability(supabase as never, "user-1", "member-1", "2024-01-10", "error");
 
     expect(result).toMatchInlineSnapshot(`
 {
