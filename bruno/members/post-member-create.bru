@@ -1,0 +1,22 @@
+meta {
+  name: POST members (create)
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{baseUrl}}/api/members
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "displayName": "Alice"
+  }
+}
+

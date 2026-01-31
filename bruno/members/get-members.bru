@@ -1,0 +1,12 @@
+meta {
+  name: GET members
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseUrl}}/api/members?status=active&limit=50&offset=0&sort=createdAt&order=desc
+  body: none
+  auth: none
+}
+

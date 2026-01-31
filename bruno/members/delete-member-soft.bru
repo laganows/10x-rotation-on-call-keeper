@@ -1,0 +1,12 @@
+meta {
+  name: DELETE members/{memberId} (soft-delete)
+  type: http
+  seq: 13
+}
+
+delete {
+  url: {{baseUrl}}/api/members/{{memberId}}
+  body: none
+  auth: none
+}
+

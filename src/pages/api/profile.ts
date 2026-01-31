@@ -1,62 +1,14 @@
 import type { APIRoute } from "astro";
-import type { ZodType } from "zod";
 
 import { DEFAULT_USER_ID, supabaseClient } from "../../db/supabase.client";
+import { errorResponse, jsonResponse, parseJsonBody } from "../../lib/http/responses";
 import { createProfile, getProfileByUserId, updateProfile } from "../../lib/services/profile.service";
 import { createProfileSchema, updateProfileSchema } from "../../lib/validation/profile.schema";
-import type { ApiDataResponse, ApiErrorCode, ApiErrorResponse, ProfileDto } from "../../types";
-
 export const prerender = false;
-
-type JsonResponseBody = ApiDataResponse<ProfileDto> | ApiErrorResponse;
-
-const jsonResponse = (body: JsonResponseBody, status: number) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
-
-const errorResponse = (status: number, code: ApiErrorCode, message: string, details?: Record<string, unknown>) =>
-  jsonResponse(
-    {
-      error: {
-        code,
-        message,
-        ...(details ? { details } : {}),
-      },
-    },
-    status
-  );
 
 const logServiceError = (context: string, userId: string, error: unknown) => {
   // eslint-disable-next-line no-console -- server-side error diagnostics
   console.error(`[api/profile] ${context}`, { userId, error });
-};
-
-const parseJsonBody = async <T>(request: Request, schema: ZodType<T>) => {
-  let payload: unknown;
-
-  try {
-    payload = await request.json();
-  } catch (error) {
-    // eslint-disable-next-line no-console -- server-side error diagnostics
-    console.error("[api/profile] invalid JSON body", { error });
-    return {
-      ok: false as const,
-      response: errorResponse(400, "validation_error", "Invalid JSON body."),
-    };
-  }
-
-  const result = schema.safeParse(payload);
-
-  if (!result.success) {
-    return {
-      ok: false as const,
-      response: errorResponse(400, "validation_error", "Invalid request body.", result.error.flatten()),
-    };
-  }
-
-  return { ok: true as const, data: result.data };
 };
 
 const conflictCode = "23505";
@@ -81,7 +33,7 @@ export const GET: APIRoute = async () => {
 export const POST: APIRoute = async ({ request }) => {
   const supabase = supabaseClient;
   const userId = DEFAULT_USER_ID;
-  const parsed = await parseJsonBody(request, createProfileSchema);
+  const parsed = await parseJsonBody(request, createProfileSchema, "[api/profile]");
 
   if (!parsed.ok) {
     return parsed.response;
@@ -126,7 +78,7 @@ export const POST: APIRoute = async ({ request }) => {
 export const PATCH: APIRoute = async ({ request }) => {
   const supabase = supabaseClient;
   const userId = DEFAULT_USER_ID;
-  const parsed = await parseJsonBody(request, updateProfileSchema);
+  const parsed = await parseJsonBody(request, updateProfileSchema, "[api/profile]");
 
   if (!parsed.ok) {
     return parsed.response;
