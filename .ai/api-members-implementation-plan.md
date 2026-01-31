@@ -3,7 +3,7 @@
 ## 1. Przegląd punktu końcowego
 Endpointy **Members** obsługują CRUD członków zespołu w MVP (z soft-delete):
 
-- **GET `/api/members`**: lista członków (domyślnie tylko aktywni).
+- **GET `/api/members`**: lista członków (domyślnie tylko aktywni) + **`savedCount`** (wyliczane po stronie backendu z historii przypisań).
 - **POST `/api/members`**: dodanie członka; `initialOnCallCount` jest ustawiane na `team.maxSavedCount` i jest niezmienialne.
 - **PATCH `/api/members/{memberId}`**: edycja wyłącznie danych prezentacyjnych (`displayName`).
 - **DELETE `/api/members/{memberId}`**: soft-delete (ustawia `deletedAt`/`deleted_at`), członek znika z listy aktywnych i nie jest brany do nowych grafików, historia pozostaje.
@@ -70,13 +70,14 @@ Wymagania techniczne:
 ### Wspólne typy odpowiedzi
 - Sukces:
   - `MemberDto`
+  - `MemberListItemDto` (GET `/api/members`), czyli `MemberDto` + `savedCount`
   - `ApiDataResponse<MemberDto>` (dla POST/PATCH)
-  - `ApiListResponse<MemberDto>` (dla GET)
+  - `ApiListResponse<MemberListItemDto>` (dla GET)
 - Błąd:
   - `ApiErrorResponse` (spójny envelope dla 4xx/5xx)
 
 ### GET `/api/members`
-- **200 OK**: `ApiListResponse<MemberDto>`
+- **200 OK**: `ApiListResponse<MemberListItemDto>`
 - **401 Unauthorized**: brak sesji
 - **500 Internal Server Error**: błąd serwera
 
@@ -127,6 +128,9 @@ Każdy handler:
 5. **Wywołanie warstwy serwisowej** (logika + DB).
 6. **Mapowanie encji DB → DTO** i zwrot odpowiedzi.
 
+Uwaga dla GET `/api/members`:
+- Response item zawiera dodatkowo **`savedCount`** wyliczone na backendzie z tabeli `public.plan_assignments` (historia zapisanych grafików).
+
 ### 4.2 Warstwa serwisowa (logika domenowa + DB)
 Nowy serwis: `src/lib/services/members.service.ts`.
 
@@ -137,7 +141,7 @@ Odpowiedzialności:
 - Mapowanie błędów Supabase/DB na błędy domenowe i HTTP.
 
 Rekomendowane funkcje serwisu:
-- `listMembers(params: { userId: UserId; query: MembersListQuery })`
+- `listMembers(params: { userId: UserId; query: MembersListQuery })` → zwraca elementy listy jako `MemberListItemDto` (z `savedCount`)
 - `createMember(params: { userId: UserId; command: CreateMemberCommand })`
 - `updateMember(params: { userId: UserId; memberId: MemberId; command: UpdateMemberCommand })`
 - `softDeleteMember(params: { userId: UserId; memberId: MemberId })`
@@ -157,6 +161,14 @@ Zachowanie:
 Wykorzystywane pola:
 - `member_id`, `team_id`, `display_name`, `initial_on_call_count`, `created_at`, `updated_at`, `deleted_at`
 
+#### `public.plan_assignments` (historia przypisań w zapisanych planach)
+Wykorzystywane pola:
+- `team_id`, `member_id`, `day`, `plan_id`
+
+Definicja `savedCount`:
+- liczba wierszy w `plan_assignments` dla danego `member_id` w obrębie `team_id`
+- **nie liczymy** `member_id = null` (to oznacza dzień nieprzypisany)
+
 Zapytania (proponowane):
 - GET list:
   - `select ... from members where team_id = <teamId>` + filtr:
@@ -167,6 +179,8 @@ Zapytania (proponowane):
     - `displayName` → `order(display_name, order)`
   - pagination:
     - limit/offset + pobranie `total` (patrz sekcja wydajności).
+  - `savedCount`:
+    - backend wylicza `savedCount` per member na podstawie `public.plan_assignments` (historia przypisań).
 - POST create:
   - `insert into members (team_id, display_name, initial_on_call_count) values (...) returning *`
 - PATCH update:
@@ -176,6 +190,15 @@ Zapytania (proponowane):
   - najpierw SELECT sprawdzający istnienie i `deleted_at`
   - jeśli `deleted_at is not null` → 409
   - wpp `update members set deleted_at = now() where ... and deleted_at is null returning *`
+
+Implementacja `savedCount` (rekomendacja MVP – bez dodatkowych endpointów, bez łączenia danych w kliencie):
+- Krok 1: pobierz stronę members (jak dotychczas), zbierz `memberIds` z aktualnej strony.
+- Krok 2: pobierz przypisania historyczne tylko dla tych memberIds:
+  - query na `plan_assignments` filtrowana po `team_id = <teamId>` oraz `member_id in (<memberIds>)`
+  - rezultat zredukować w serwisie do mapy `{ memberId -> savedCount }`
+  - zmapować listę `members` do `MemberListItemDto`, uzupełniając `savedCount` (domyślnie `0` jeśli brak wpisów)
+- Wydajność:
+  - w DB jest indeks `plan_assignments_team_member_day_idx (team_id, member_id, day)`, więc filtrowanie po `team_id` i `member_id IN (...)` powinno być szybkie.
 
 ## 5. Względy bezpieczeństwa
 

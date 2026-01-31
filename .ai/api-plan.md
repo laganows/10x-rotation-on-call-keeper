@@ -116,6 +116,7 @@ List members.
           "teamId": "uuid",
           "displayName": "string",
           "initialOnCallCount": 0,
+          "savedCount": 0,
           "createdAt": "timestamp",
           "updatedAt": "timestamp",
           "deletedAt": "timestamp|null"
@@ -392,6 +393,7 @@ List instrumentation events.
 ### Members
 - `displayName` required on create, non-empty.
 - `initialOnCallCount` is set to `teams.max_saved_count` on create.
+- `savedCount` is computed server-side for GET `/api/members` from historic saved plan assignments (`public.plan_assignments`).
 - Soft delete only (`deletedAt`), no hard delete.
 - `deletedAt IS NULL` members are active; generator excludes deleted members.
 

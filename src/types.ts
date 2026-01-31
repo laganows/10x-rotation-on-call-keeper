@@ -97,6 +97,16 @@ export interface MemberDto {
   deletedAt: DbMember["deleted_at"] & (IsoTimestamp | null);
 }
 
+/**
+ * Members list item: GET `/api/members`
+ *
+ * `savedCount` is computed server-side from historical saved plan assignments
+ * (`public.plan_assignments`) so the UI can render the Members view with a single request.
+ */
+export interface MemberListItemDto extends MemberDto {
+  savedCount: number;
+}
+
 export type MembersListStatus = "active" | "all";
 export type MembersListSort = "createdAt" | "displayName";
 
