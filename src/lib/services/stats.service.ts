@@ -27,6 +27,13 @@ export interface DomainError {
 
 export type DomainServiceResult<T> = { data: T; error: null } | { data: null; error: DomainError };
 
+type StatsMemberPreview = Pick<DbMember, "member_id" | "display_name">;
+type StatsAssignmentPreview = Pick<DbPlanAssignment, "day" | "member_id">;
+type OverrideTypes = () => unknown;
+
+const withOverrideTypes = (query: { overrideTypes?: OverrideTypes }) =>
+  typeof query.overrideTypes === "function" ? query.overrideTypes() : query;
+
 const getTeamForOwner = async (supabase: SupabaseClient, userId: UserId): Promise<{ teamId: TeamId } | null> => {
   const { data, error } = await supabase.from("teams").select("team_id").eq("owner_id", userId).maybeSingle();
 
@@ -40,12 +47,11 @@ const getTeamForOwner = async (supabase: SupabaseClient, userId: UserId): Promis
 const listActiveMembers = async (
   supabase: SupabaseClient,
   teamId: TeamId
-): Promise<{ members: DbMember[]; error: SupabaseError | null }> => {
-  const { data, error } = await supabase
-    .from("members")
-    .select("member_id, display_name")
-    .eq("team_id", teamId)
-    .is("deleted_at", null);
+): Promise<{ members: StatsMemberPreview[]; error: SupabaseError | null }> => {
+  const response = await withOverrideTypes(
+    supabase.from("members").select("member_id, display_name").eq("team_id", teamId).is("deleted_at", null)
+  );
+  const { data, error } = response as { data: StatsMemberPreview[] | null; error: SupabaseError | null };
 
   if (error) {
     return { members: [], error };
@@ -58,14 +64,15 @@ const listPlanAssignments = async (
   supabase: SupabaseClient,
   teamId: TeamId,
   planId?: PlanId
-): Promise<{ assignments: DbPlanAssignment[]; error: SupabaseError | null }> => {
+): Promise<{ assignments: StatsAssignmentPreview[]; error: SupabaseError | null }> => {
   let query = supabase.from("plan_assignments").select("day, member_id").eq("team_id", teamId);
 
   if (planId) {
     query = query.eq("plan_id", planId);
   }
 
-  const { data, error } = await query;
+  const response = await withOverrideTypes(query);
+  const { data, error } = response as { data: StatsAssignmentPreview[] | null; error: SupabaseError | null };
 
   if (error) {
     return { assignments: [], error };
@@ -80,7 +87,7 @@ const classifyDay = (day: string) => {
   return weekday === 0 || weekday === 6 ? "weekend" : "weekday";
 };
 
-const buildStatsDays = (assignments: DbPlanAssignment[]): StatsDaysDto => {
+const buildStatsDays = (assignments: StatsAssignmentPreview[]): StatsDaysDto => {
   let weekends = 0;
   let weekdays = 0;
   let unassigned = 0;
@@ -105,7 +112,7 @@ const buildStatsDays = (assignments: DbPlanAssignment[]): StatsDaysDto => {
   };
 };
 
-const buildByMember = (members: DbMember[], assignments: DbPlanAssignment[]): StatsByMemberDto[] => {
+const buildByMember = (members: StatsMemberPreview[], assignments: StatsAssignmentPreview[]): StatsByMemberDto[] => {
   const counts = new Map<string, number>();
 
   for (const assignment of assignments) {

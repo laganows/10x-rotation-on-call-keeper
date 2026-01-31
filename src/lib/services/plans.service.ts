@@ -3,6 +3,7 @@ import type {
   DbMember,
   DbPlan,
   DbPlanAssignment,
+  DbTeam,
   PlanAssignmentDto,
   PlanDto,
   PlanId,
@@ -64,7 +65,11 @@ const mapMemberToPreviewCounter = (
 });
 
 const getTeamForOwner = async (supabase: SupabaseClient, userId: UserId): Promise<{ teamId: TeamId } | null> => {
-  const { data, error } = await supabase.from("teams").select("team_id").eq("owner_id", userId).maybeSingle();
+  const { data, error } = await supabase
+    .from("teams")
+    .select("team_id")
+    .eq("owner_id", userId)
+    .maybeSingle<Pick<DbTeam, "team_id">>();
 
   if (error || !data) {
     return null;
@@ -243,7 +248,8 @@ const getSavedCountsByMember = async (
     .from("plan_assignments")
     .select("member_id")
     .eq("team_id", teamId)
-    .not("member_id", "is", null);
+    .not("member_id", "is", null)
+    .overrideTypes<Pick<DbPlanAssignment, "member_id">[], { merge: false }>();
 
   if (error) {
     return { counts: new Map(), error };

@@ -1,16 +1,17 @@
-import { createBrowserClient } from "@supabase/ssr";
+import { createBrowserClient, type SetAllCookies } from "@supabase/ssr";
 
-import type { SupabaseClient } from "@/db/supabase.client";
 import type { Database } from "@/db/database.types";
 
 const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
 
-let browserClient: SupabaseClient | null | undefined;
+type BrowserSupabaseClient = ReturnType<typeof createBrowserClient<Database>>;
+
+let browserClient: BrowserSupabaseClient | null | undefined;
 
 const isValidJwt = (value: string) => value.split(".").length === 3;
 
-export const getSupabaseBrowserClient = (): SupabaseClient | null => {
+export const getSupabaseBrowserClient = (): BrowserSupabaseClient | null => {
   if (browserClient !== undefined) {
     return browserClient;
   }
@@ -44,15 +45,14 @@ export const getSupabaseBrowserClient = (): SupabaseClient | null => {
             return { name, value: decodeURIComponent(rest.join("=")) };
           });
       },
-      setAll(cookiesToSet) {
+      setAll(cookiesToSet: Parameters<SetAllCookies>[0]) {
         cookiesToSet.forEach(({ name, value, options }) => {
           const segments: string[] = [`${name}=${encodeURIComponent(value)}`];
           if (options?.path) segments.push(`path=${options.path}`);
           if (options?.domain) segments.push(`domain=${options.domain}`);
           if (options?.maxAge !== undefined) segments.push(`max-age=${options.maxAge}`);
           if (options?.expires) {
-            const expires =
-              options.expires instanceof Date ? options.expires.toUTCString() : String(options.expires);
+            const expires = options.expires instanceof Date ? options.expires.toUTCString() : String(options.expires);
             segments.push(`expires=${expires}`);
           }
           if (options?.sameSite) segments.push(`samesite=${options.sameSite}`);
@@ -65,4 +65,4 @@ export const getSupabaseBrowserClient = (): SupabaseClient | null => {
   return browserClient;
 };
 
-export type BrowserSupabaseClient = SupabaseClient;
+export type { BrowserSupabaseClient };
