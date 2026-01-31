@@ -90,6 +90,16 @@ From `package.json`:
 - **`npm run lint`**: run ESLint
 - **`npm run lint:fix`**: auto-fix ESLint issues where possible
 - **`npm run format`**: run Prettier across the repo
+- **`npm run test`**: run unit tests (alias for `test:unit`)
+- **`npm run test:unit`**: run Vitest in single-run mode
+- **`npm run test:unit:watch`**: run Vitest in watch mode
+- **`npm run test:unit:ui`**: run Vitest UI
+- **`npm run test:e2e`**: run Playwright tests (starts dev server on `http://localhost:4321`)
+- **`npm run test:e2e:ui`**: run Playwright UI mode
+
+### Testing setup notes
+
+- For Playwright, install the browser binaries once: `npx playwright install chromium`.
 
 ## 6. Project scope
 

@@ -1,6 +1,5 @@
 import type { AstroCookies } from "astro";
 import { createServerClient, type CookieOptionsWithName } from "@supabase/ssr";
-import type { SupabaseClient as SupabaseClientBase } from "@supabase/supabase-js";
 
 import type { Database } from "../db/database.types.ts";
 
@@ -52,6 +51,6 @@ export const createSupabaseServerInstance = (context: { headers: Headers; cookie
     },
   });
 
-export type SupabaseClient = SupabaseClientBase<Database>;
+export type SupabaseClient = ReturnType<typeof createSupabaseServerInstance>;
 
 export const DEFAULT_USER_ID = "9609302b-599f-4d15-849c-28a8d197d8a8";

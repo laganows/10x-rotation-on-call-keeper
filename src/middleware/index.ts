@@ -2,12 +2,7 @@ import { defineMiddleware } from "astro:middleware";
 
 import { errorResponse } from "../lib/http/responses";
 
-const publicPaths = new Set([
-  "/login",
-  "/register",
-  "/api/auth/login",
-  "/api/auth/register",
-]);
+const publicPaths = new Set(["/login", "/register", "/api/auth/login", "/api/auth/register"]);
 
 const parseAuthRequired = () => {
   const raw = import.meta.env.PUBLIC_AUTH_REQUIRED;
@@ -18,12 +13,7 @@ const parseAuthRequired = () => {
 const isApiRoute = (pathname: string) => pathname.startsWith("/api/");
 
 export const onRequest = defineMiddleware(async (context, next) => {
-  let createSupabaseServerInstance: typeof import("../db/supabase.client.ts").createSupabaseServerInstance;
-  try {
-    ({ createSupabaseServerInstance } = await import("../db/supabase.client.ts"));
-  } catch (error) {
-    throw error;
-  }
+  const { createSupabaseServerInstance } = await import("../db/supabase.client.ts");
 
   const authRequired = parseAuthRequired();
   const supabase = createSupabaseServerInstance({
