@@ -1,0 +1,22 @@
+meta {
+  name: POST team (create)
+  type: http
+  seq: 21
+}
+
+post {
+  url: {{baseUrl}}/api/team
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "My Team"
+  }
+}
+

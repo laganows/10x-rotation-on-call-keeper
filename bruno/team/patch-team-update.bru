@@ -1,0 +1,22 @@
+meta {
+  name: PATCH team (update)
+  type: http
+  seq: 22
+}
+
+patch {
+  url: {{baseUrl}}/api/team
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "My Team Updated"
+  }
+}
+
