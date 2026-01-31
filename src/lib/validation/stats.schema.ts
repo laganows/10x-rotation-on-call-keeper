@@ -14,4 +14,3 @@ export const statsQuerySchema: z.ZodType<StatsQuery, z.ZodTypeDef, unknown> = z
   }));
 
 export const planIdParamSchema: z.ZodType<PlanId> = z.string().uuid();
-

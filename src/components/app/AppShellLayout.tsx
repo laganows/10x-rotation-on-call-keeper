@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { GlobalErrorBanner } from "@/components/app/GlobalErrorBanner";
 import { Button } from "@/components/ui/button";
 
 interface AppShellLayoutProps {
@@ -51,6 +52,7 @@ export const AppShellLayout = ({ activePath, userLabel, onLogout, children }: Ap
         </div>
       </div>
     </header>
+    <GlobalErrorBanner />
     <main id="content" className="mx-auto w-full max-w-5xl px-6 py-8">
       {children}
     </main>

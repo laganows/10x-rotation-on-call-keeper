@@ -27,10 +27,7 @@ export interface DomainError {
 
 export type DomainServiceResult<T> = { data: T; error: null } | { data: null; error: DomainError };
 
-const getTeamForOwner = async (
-  supabase: SupabaseClient,
-  userId: UserId
-): Promise<{ teamId: TeamId } | null> => {
+const getTeamForOwner = async (supabase: SupabaseClient, userId: UserId): Promise<{ teamId: TeamId } | null> => {
   const { data, error } = await supabase.from("teams").select("team_id").eq("owner_id", userId).maybeSingle();
 
   if (error || !data) {
@@ -62,10 +59,7 @@ const listPlanAssignments = async (
   teamId: TeamId,
   planId?: PlanId
 ): Promise<{ assignments: DbPlanAssignment[]; error: SupabaseError | null }> => {
-  let query = supabase
-    .from("plan_assignments")
-    .select("day, member_id")
-    .eq("team_id", teamId);
+  let query = supabase.from("plan_assignments").select("day, member_id").eq("team_id", teamId);
 
   if (planId) {
     query = query.eq("plan_id", planId);
@@ -222,4 +216,3 @@ export const getPlanStats = async (
     error: null,
   };
 };
-

@@ -2,6 +2,8 @@ import { useEffect } from "react";
 
 import { AuthProvider, useAuth } from "@/lib/auth/AuthProvider";
 import { AppShellLayout } from "@/components/app/AppShellLayout";
+import { NotificationsProvider } from "@/components/app/NotificationsProvider";
+import { ToastViewport } from "@/components/app/ToastViewport";
 import type { RouteId, RouteParams } from "@/lib/view-models/ui";
 import { useBootstrap, BootstrapProvider } from "@/lib/bootstrap/BootstrapProvider";
 import { GeneratorView } from "@/components/views/GeneratorView";
@@ -37,24 +39,14 @@ const renderRoute = (routeId: RouteId, routeParams?: RouteParams) => {
       return <PlansListView />;
     case "planDetail": {
       if (!routeParams?.planId) {
-        return (
-          <ViewPlaceholder
-            title="Plan details"
-            description="Missing plan identifier in route parameters."
-          />
-        );
+        return <ViewPlaceholder title="Plan details" description="Missing plan identifier in route parameters." />;
       }
       return <PlanDetailView planId={routeParams.planId} />;
     }
     case "stats":
       return <StatsView />;
     default:
-      return (
-        <ViewPlaceholder
-          title="Unknown route"
-          description={`Unknown route id: ${routeId}`}
-        />
-      );
+      return <ViewPlaceholder title="Unknown route" description={`Unknown route id: ${routeId}`} />;
   }
 };
 
@@ -99,9 +91,7 @@ const ProtectedApp = ({ routeId, routeParams }: { routeId: RouteId; routeParams?
   }, [bootstrapState.status, isSetupRoute]);
 
   if (bootstrapState.status === "idle" || bootstrapState.status === "loading") {
-    return (
-      <ViewPlaceholder title="Loading" description="Loading profile and team data." />
-    );
+    return <ViewPlaceholder title="Loading" description="Loading profile and team data." />;
   }
 
   if (bootstrapState.status === "error") {
@@ -116,17 +106,13 @@ const ProtectedApp = ({ routeId, routeParams }: { routeId: RouteId; routeParams?
 
   if (bootstrapState.status === "needsSetup") {
     if (!isSetupRoute) {
-      return (
-        <ViewPlaceholder title="Setup required" description="Redirecting to setup..." />
-      );
+      return <ViewPlaceholder title="Setup required" description="Redirecting to setup..." />;
     }
     return renderRoute(routeId, routeParams);
   }
 
   if (isSetupRoute) {
-    return (
-      <ViewPlaceholder title="Setup complete" description="Redirecting to generator..." />
-    );
+    return <ViewPlaceholder title="Setup complete" description="Redirecting to generator..." />;
   }
 
   return (
@@ -137,23 +123,22 @@ const ProtectedApp = ({ routeId, routeParams }: { routeId: RouteId; routeParams?
 };
 
 const ReactRoot = ({ routeId, routeParams, initialUrl }: ReactRootProps) => {
-  if (routeId === "login") {
-    return (
-      <AuthProvider>
-        <div id="app" data-route={routeId} data-initial-url={initialUrl}>
-          {renderRoute(routeId, routeParams)}
-        </div>
-      </AuthProvider>
-    );
-  }
-
   return (
     <AuthProvider>
-      <BootstrapProvider>
-        <div id="app" data-route={routeId} data-initial-url={initialUrl}>
-          <ProtectedApp routeId={routeId} routeParams={routeParams} />
-        </div>
-      </BootstrapProvider>
+      <NotificationsProvider>
+        {routeId === "login" ? (
+          <div id="app" data-route={routeId} data-initial-url={initialUrl}>
+            {renderRoute(routeId, routeParams)}
+          </div>
+        ) : (
+          <BootstrapProvider>
+            <div id="app" data-route={routeId} data-initial-url={initialUrl}>
+              <ProtectedApp routeId={routeId} routeParams={routeParams} />
+            </div>
+          </BootstrapProvider>
+        )}
+        <ToastViewport />
+      </NotificationsProvider>
     </AuthProvider>
   );
 };

@@ -1,6 +1,14 @@
 import type { ApiErrorCode, PlanId } from "@/types";
 
-export type RouteId = "login" | "setup" | "generator" | "members" | "unavailabilities" | "plans" | "planDetail" | "stats";
+export type RouteId =
+  | "login"
+  | "setup"
+  | "generator"
+  | "members"
+  | "unavailabilities"
+  | "plans"
+  | "planDetail"
+  | "stats";
 
 export interface RouteParams {
   planId?: PlanId;

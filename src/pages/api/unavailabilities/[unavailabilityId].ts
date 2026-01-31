@@ -37,4 +37,3 @@ export const DELETE: APIRoute = async (context) => {
 
   return new Response(null, { status: 204 });
 };
-

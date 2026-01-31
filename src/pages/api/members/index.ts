@@ -70,4 +70,3 @@ export const POST: APIRoute = async (context) => {
 
   return jsonResponse({ data: created.data }, 201);
 };
-

@@ -25,7 +25,10 @@ export const PlansListView = () => {
       </header>
 
       {error ? (
-        <div className="rounded-md border border-destructive/50 bg-destructive/5 px-3 py-2 text-sm text-destructive" role="alert">
+        <div
+          className="rounded-md border border-destructive/50 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+          role="alert"
+        >
           {error.message}
           <div className="mt-2">
             <Button size="sm" variant="outline" onClick={refetch}>

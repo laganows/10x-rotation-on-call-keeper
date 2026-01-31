@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 
+import { useAppNotifications } from "@/components/app/NotificationsProvider";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { networkErrorToViewModel, toApiErrorViewModel } from "@/lib/http/api-errors";
 import type { ApiErrorViewModel } from "@/lib/view-models/ui";
@@ -73,7 +74,12 @@ const parseResponse = async <T>(response: Response): Promise<ApiClientResult<T>>
   };
 };
 
-const buildHeaders = (initHeaders: HeadersInit | undefined, isJson: boolean, accessToken: string | null, authRequired: boolean) => {
+const buildHeaders = (
+  initHeaders: HeadersInit | undefined,
+  isJson: boolean,
+  accessToken: string | null,
+  authRequired: boolean
+) => {
   const headers = new Headers(initHeaders);
 
   if (!headers.has("Accept")) {
@@ -93,10 +99,11 @@ const buildHeaders = (initHeaders: HeadersInit | undefined, isJson: boolean, acc
 
 export const useApiClient = () => {
   const { state } = useAuth();
+  const { reportError } = useAppNotifications();
   const accessToken = state.session?.accessToken ?? null;
 
   const request = useCallback(
-    async <T,>(path: string, init: JsonRequestInit = {}): Promise<ApiClientResult<T>> => {
+    async <T>(path: string, init: JsonRequestInit = {}): Promise<ApiClientResult<T>> => {
       const { body: resolvedBody, isJson } = resolveBody(init.body);
       const headers = buildHeaders(init.headers, isJson, accessToken, state.authRequired);
 
@@ -107,16 +114,22 @@ export const useApiClient = () => {
           headers,
         });
 
-        return await parseResponse<T>(response);
+        const result = await parseResponse<T>(response);
+        if (result.error) {
+          reportError(result.error);
+        }
+        return result;
       } catch (error) {
+        const errorViewModel = networkErrorToViewModel(error);
+        reportError(errorViewModel);
         return {
           data: null,
-          error: networkErrorToViewModel(error),
+          error: errorViewModel,
           status: 0,
         };
       }
     },
-    [accessToken, state.authRequired]
+    [accessToken, reportError, state.authRequired]
   );
 
   return { request };

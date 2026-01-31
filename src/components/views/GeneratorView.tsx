@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { setFlashToast } from "@/components/app/NotificationsProvider";
 import { usePlanPreview } from "@/components/hooks/usePlanPreview";
 import { useSavePlan } from "@/components/hooks/useSavePlan";
 import { addDaysToYyyyMmDd, diffDaysInclusive, isValidYyyyMmDd, todayUtcYyyyMmDd } from "@/lib/dates/utc";
@@ -108,6 +109,11 @@ export const GeneratorView = () => {
     });
 
     if (result.ok && typeof window !== "undefined") {
+      setFlashToast({
+        variant: "success",
+        title: "Plan saved",
+        message: `Plan saved for ${preview.startDate} to ${preview.endDate}.`,
+      });
       window.location.assign("/plans");
     }
   };

@@ -22,9 +22,7 @@ export const LoginView = () => {
       <div className="mx-auto flex w-full max-w-lg flex-col gap-6 rounded-lg border bg-card p-8 text-card-foreground shadow-sm">
         <header className="space-y-2">
           <h1 className="text-2xl font-semibold">Rotation On-Call Keeper</h1>
-          <p className="text-sm text-muted-foreground">
-            Log in with OAuth to access generator and plans.
-          </p>
+          <p className="text-sm text-muted-foreground">Log in with OAuth to access generator and plans.</p>
         </header>
         <Button onClick={handleLogin} disabled={isLoading}>
           Zaloguj sie

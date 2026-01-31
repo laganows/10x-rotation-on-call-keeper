@@ -61,11 +61,7 @@ const parseYyyyMmDdToUtcMs = (value: string) => {
   if (day < 1 || day > 31) return null;
 
   const date = new Date(Date.UTC(year, month - 1, day));
-  if (
-    date.getUTCFullYear() !== year ||
-    date.getUTCMonth() !== month - 1 ||
-    date.getUTCDate() !== day
-  ) {
+  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) {
     return null;
   }
 
@@ -127,28 +123,6 @@ const validateAssignments = (
   return null;
 };
 
-const getTeamIdForOwner = async (
-  supabase: typeof import("../../../db/supabase.client").supabaseClient,
-  userId: string
-) => {
-  const { data, error } = await supabase.from("teams").select("team_id").eq("owner_id", userId).maybeSingle();
-  if (error || !data) return null;
-  return data.team_id;
-};
-
-const getActiveMemberIds = async (
-  supabase: typeof import("../../../db/supabase.client").supabaseClient,
-  teamId: string
-) => {
-  const { data, error } = await supabase
-    .from("members")
-    .select("member_id")
-    .eq("team_id", teamId)
-    .is("deleted_at", null);
-  if (error) return null;
-  return new Set((data ?? []).map((row) => row.member_id));
-};
-
 export const POST: APIRoute = async (context) => {
   const supabase = context.locals.supabase;
   const userId = DEFAULT_USER_ID;
@@ -171,26 +145,6 @@ export const POST: APIRoute = async (context) => {
 
   if (assignmentsError) {
     return errorResponse(422, "unprocessable_entity", assignmentsError);
-  }
-
-  const teamId = await getTeamIdForOwner(supabase, userId);
-
-  if (!teamId) {
-    return errorResponse(404, "not_found", "Team not found.");
-  }
-
-  const activeMemberIds = await getActiveMemberIds(supabase, teamId);
-
-  if (!activeMemberIds) {
-    return errorResponse(500, "unprocessable_entity", "Failed to validate members.");
-  }
-
-  const invalidMember = parsedBody.data.assignments.find(
-    (assignment) => assignment.memberId !== null && !activeMemberIds.has(assignment.memberId)
-  );
-
-  if (invalidMember) {
-    return errorResponse(422, "unprocessable_entity", "Assignments contain invalid memberId.");
   }
 
   const result = await savePlan(supabase, userId, parsedBody.data);

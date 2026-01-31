@@ -63,10 +63,7 @@ const mapMemberToPreviewCounter = (
   effectiveCount: member.initial_on_call_count + savedCount + previewCount,
 });
 
-const getTeamForOwner = async (
-  supabase: SupabaseClient,
-  userId: UserId
-): Promise<{ teamId: TeamId } | null> => {
+const getTeamForOwner = async (supabase: SupabaseClient, userId: UserId): Promise<{ teamId: TeamId } | null> => {
   const { data, error } = await supabase.from("teams").select("team_id").eq("owner_id", userId).maybeSingle();
 
   if (error || !data) {
@@ -94,10 +91,7 @@ export const listPlans = async (
   const from = offset;
   const to = offset + limit - 1;
 
-  let listQuery = supabase
-    .from("plans")
-    .select("*", { count: "exact" })
-    .eq("team_id", team.teamId);
+  let listQuery = supabase.from("plans").select("*", { count: "exact" }).eq("team_id", team.teamId);
 
   if (query.startDate) {
     listQuery = listQuery.gte("end_date", query.startDate);
@@ -203,11 +197,7 @@ const listActiveMembers = async (
   supabase: SupabaseClient,
   teamId: TeamId
 ): Promise<{ members: DbMember[]; error: SupabaseError | null }> => {
-  const { data, error } = await supabase
-    .from("members")
-    .select("*")
-    .eq("team_id", teamId)
-    .is("deleted_at", null);
+  const { data, error } = await supabase.from("members").select("*").eq("team_id", teamId).is("deleted_at", null);
 
   if (error) {
     return { members: [], error };
@@ -376,11 +366,7 @@ export const generatePlanPreview = async (
   }
 
   const counters: PlanPreviewCounterDto[] = members.map((member) =>
-    mapMemberToPreviewCounter(
-      member,
-      savedCounts.get(member.member_id) ?? 0,
-      previewCounts.get(member.member_id) ?? 0
-    )
+    mapMemberToPreviewCounter(member, savedCounts.get(member.member_id) ?? 0, previewCounts.get(member.member_id) ?? 0)
   );
 
   const inequality = computeInequality(counters);
@@ -413,10 +399,7 @@ export const generatePlanPreview = async (
   return { data: preview, error: null };
 };
 
-const updateTeamMaxSavedCount = async (
-  supabase: SupabaseClient,
-  teamId: TeamId
-): Promise<SupabaseError | null> => {
+const updateTeamMaxSavedCount = async (supabase: SupabaseClient, teamId: TeamId): Promise<SupabaseError | null> => {
   const { counts, error } = await getSavedCountsByMember(supabase, teamId);
 
   if (error) {

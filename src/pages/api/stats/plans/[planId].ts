@@ -32,4 +32,3 @@ export const GET: APIRoute = async (context) => {
 
   return jsonResponse({ data: result.data }, 200);
 };
-

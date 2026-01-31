@@ -16,12 +16,7 @@ import { useMembersList } from "@/components/hooks/useMembersList";
 import { useUnavailabilitiesList } from "@/components/hooks/useUnavailabilitiesList";
 import { useApiClient } from "@/lib/http/api-client";
 import type { ApiErrorViewModel } from "@/lib/view-models/ui";
-import {
-  addDaysToYyyyMmDd,
-  diffDaysInclusive,
-  isValidYyyyMmDd,
-  todayUtcYyyyMmDd,
-} from "@/lib/dates/utc";
+import { addDaysToYyyyMmDd, diffDaysInclusive, isValidYyyyMmDd, todayUtcYyyyMmDd } from "@/lib/dates/utc";
 
 interface FieldErrors {
   memberId?: string;
@@ -125,13 +120,10 @@ export const UnavailabilitiesView = () => {
     setFieldErrors(validation);
     if (Object.keys(validation).length > 0) return;
 
-    const result = await request<ApiDataResponse<UnavailabilityDto>>(
-      "/api/unavailabilities?onConflict=ignore",
-      {
-        method: "POST",
-        body: { memberId: newMemberId, day: newDay },
-      }
-    );
+    const result = await request<ApiDataResponse<UnavailabilityDto>>("/api/unavailabilities?onConflict=ignore", {
+      method: "POST",
+      body: { memberId: newMemberId, day: newDay },
+    });
 
     if (result.error) {
       setAddError(result.error);
@@ -161,18 +153,13 @@ export const UnavailabilitiesView = () => {
     await refetch();
   };
 
-  const sortedItems = useMemo(
-    () => [...items].sort((a, b) => a.day.localeCompare(b.day)),
-    [items]
-  );
+  const sortedItems = useMemo(() => [...items].sort((a, b) => a.day.localeCompare(b.day)), [items]);
 
   return (
     <div className="space-y-6">
       <header className="space-y-2">
         <h1 className="text-2xl font-semibold">Unavailabilities</h1>
-        <p className="text-sm text-muted-foreground">
-          Track days when members are unavailable for on-call duty.
-        </p>
+        <p className="text-sm text-muted-foreground">Track days when members are unavailable for on-call duty.</p>
       </header>
 
       <section className="rounded-lg border bg-card p-4 shadow-sm space-y-4">
@@ -199,11 +186,7 @@ export const UnavailabilitiesView = () => {
           </div>
           <div className="space-y-1">
             <Label htmlFor="memberFilter">Member</Label>
-            <Select
-              id="memberFilter"
-              value={memberId}
-              onChange={(event) => setMemberId(event.target.value)}
-            >
+            <Select id="memberFilter" value={memberId} onChange={(event) => setMemberId(event.target.value)}>
               <option value="">All members</option>
               {members.map((member) => (
                 <option key={member.memberId} value={member.memberId}>
@@ -274,7 +257,10 @@ export const UnavailabilitiesView = () => {
               </div>
             </div>
             {addError ? (
-              <div className="rounded-md border border-destructive/50 bg-destructive/5 px-3 py-2 text-sm text-destructive" role="alert">
+              <div
+                className="rounded-md border border-destructive/50 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+                role="alert"
+              >
                 {addError.message}
               </div>
             ) : null}
@@ -291,7 +277,10 @@ export const UnavailabilitiesView = () => {
       ) : null}
 
       {actionError ? (
-        <div className="rounded-md border border-destructive/50 bg-destructive/5 px-3 py-2 text-sm text-destructive" role="alert">
+        <div
+          className="rounded-md border border-destructive/50 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+          role="alert"
+        >
           {actionError.message}
         </div>
       ) : null}
