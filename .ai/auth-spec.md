@@ -6,7 +6,7 @@ Zakres specyfikacji dotyczy modułu auth zgodnego z wymaganiami PRD (US-001) ora
 
 - Dostęp do aplikacji wyłącznie po zalogowaniu (w produkcji); brak ról i wielozespołowości w MVP.
 - Obecne zachowanie aplikacji nie może zostać naruszone: App Shell z top-nav działa po zalogowaniu, a po pierwszym logowaniu uruchamia się Setup (bootstrap profilu/zespołu).
-- Zakres MVP obejmuje logowanie/wylogowanie email/hasło; rejestracja i odzyskiwanie hasła są poza MVP (formularze UI bez backendu).
+- Zakres MVP obejmuje logowanie/wylogowanie email/hasło; rejestracja jest poza MVP (formularz UI bez backendu).
 - OAuth GitHub jest poza MVP (do rozważenia w kolejnym etapie).
 - Auth w trybie dev może być opcjonalny (flaga `PUBLIC_AUTH_REQUIRED`).
 
@@ -17,7 +17,6 @@ Zakres specyfikacji dotyczy modułu auth zgodnego z wymaganiami PRD (US-001) ora
 **Trasy publiczne (unauth):**
 - `/login` — logowanie (email/hasło).
 - `/register` — rejestracja (UI; backend poza MVP).
-- `/recover` — odzyskiwanie konta (UI; backend poza MVP).
 
 W MVP nie przewidujemy innych tras auth poza powyższymi.
 
@@ -38,10 +37,9 @@ W MVP nie przewidujemy innych tras auth poza powyższymi.
 
 **Nowe komponenty (React):**
 - `src/components/views/RegisterView.tsx` (formularz rejestracji, UI-only).
-- `src/components/views/RecoverView.tsx` (formularz odzyskiwania konta, UI-only).
 
 **Nowe/rozszerzone typy:**
-- `src/lib/view-models/ui.ts`: nowe `RouteId` dla `register` i `recover`.
+- `src/lib/view-models/ui.ts`: nowe `RouteId` dla `register`.
 
 ### 1.3. Podział odpowiedzialności: Astro vs React
 
@@ -68,10 +66,6 @@ W MVP nie przewidujemy innych tras auth poza powyższymi.
 **Rejestracja (`/register`):**
 - Formularz UI; walidacja email/hasło/powtórzenie hasła.
 - Backend rejestracji poza MVP.
-
-**Odzyskiwanie (`/recover`):**
-- Formularz UI; email wymagany.
-- Backend odzyskiwania konta poza MVP.
 
 **Wspólne zasady:**
 - Błędy 5xx i sieciowe w `GlobalErrorBanner` (z `NotificationsProvider`).
@@ -135,10 +129,10 @@ Uwzględniając `output: "server"` i adapter `@astrojs/node`:
 ### 3.1. Konfiguracja Supabase
 
 - OAuth GitHub poza MVP (opcjonalnie do włączenia w przyszłości).
-- Logowanie email/hasło w MVP; rejestracja i odzyskiwanie hasła poza MVP.
+- Logowanie email/hasło w MVP; rejestracja poza MVP.
 - Ustawione URL-e przekierowań (gdy będzie to potrzebne):
   - `Site URL` -> domena aplikacji.
-  - `Redirect URLs` -> ścieżki dla flow auth (np. `/login`, `/recover`).
+  - `Redirect URLs` -> ścieżki dla flow auth (np. `/login`).
 
 ### 3.2. Zarządzanie sesją
 

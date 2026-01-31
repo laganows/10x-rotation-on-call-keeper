@@ -26,7 +26,7 @@ const mapSession = (session: Session | null): AuthState["session"] => {
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
-const publicAuthPaths = new Set(["/login", "/register", "/recover"]);
+const publicAuthPaths = new Set(["/login", "/register"]);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const authRequired = parseAuthRequired();

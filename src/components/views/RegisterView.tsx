@@ -184,9 +184,6 @@ export const RegisterView = () => {
           <a className="text-primary underline-offset-4 hover:underline" href="/login">
             Masz konto? Zaloguj sie
           </a>
-          <a className="text-primary underline-offset-4 hover:underline" href="/recover">
-            Odzyskaj konto
-          </a>
         </div>
       </form>
     </main>

@@ -8,7 +8,6 @@ import type { RouteId, RouteParams } from "@/lib/view-models/ui";
 import { useBootstrap, BootstrapProvider } from "@/lib/bootstrap/BootstrapProvider";
 import { GeneratorView } from "@/components/views/GeneratorView";
 import { LoginView } from "@/components/views/LoginView";
-import { RecoverView } from "@/components/views/RecoverView";
 import { RegisterView } from "@/components/views/RegisterView";
 import { MembersView } from "@/components/views/MembersView";
 import { PlanDetailView } from "@/components/views/PlanDetailView";
@@ -31,8 +30,6 @@ const renderRoute = (routeId: RouteId, routeParams?: RouteParams) => {
       return <LoginView />;
     case "register":
       return <RegisterView />;
-    case "recover":
-      return <RecoverView />;
     case "setup":
       return <SetupView />;
     case "generator":
@@ -73,8 +70,6 @@ const routeToPath = (routeId: RouteId) => {
       return "/setup";
     case "register":
       return "/register";
-    case "recover":
-      return "/recover";
     case "login":
     default:
       return "/login";
@@ -133,7 +128,7 @@ const ProtectedApp = ({ routeId, routeParams }: { routeId: RouteId; routeParams?
 };
 
 const ReactRoot = ({ routeId, routeParams, initialUrl }: ReactRootProps) => {
-  const isPublicRoute = routeId === "login" || routeId === "register" || routeId === "recover";
+  const isPublicRoute = routeId === "login" || routeId === "register";
 
   return (
     <AuthProvider>

@@ -3,7 +3,6 @@ import type { ApiErrorCode, PlanId } from "@/types";
 export type RouteId =
   | "login"
   | "register"
-  | "recover"
   | "setup"
   | "generator"
   | "members"

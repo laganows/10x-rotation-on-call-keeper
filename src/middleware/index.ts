@@ -5,7 +5,6 @@ import { errorResponse } from "../lib/http/responses";
 const publicPaths = new Set([
   "/login",
   "/register",
-  "/recover",
   "/api/auth/login",
   "/api/auth/register",
 ]);
