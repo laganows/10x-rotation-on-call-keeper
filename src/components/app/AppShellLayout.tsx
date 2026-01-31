@@ -15,6 +15,7 @@ const navItems = [
   { label: "Members", href: "/members" },
   { label: "Unavailabilities", href: "/unavailabilities" },
   { label: "Plans", href: "/plans" },
+  { label: "Stats", href: "/stats" },
 ];
 
 export const AppShellLayout = ({ activePath, userLabel, onLogout, children }: AppShellLayoutProps) => (
