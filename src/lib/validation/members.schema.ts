@@ -51,7 +51,7 @@ const paginationOrderSchema: z.ZodType<PaginationOrder> = z.enum(["asc", "desc"]
  * - `order` default depends on `sort` (createdAt -> desc, displayName -> asc)
  * - limit is clamped to max 200 (MVP protection)
  */
-export const membersListQuerySchema: z.ZodType<MembersListQuery> = z
+export const membersListQuerySchema: z.ZodType<MembersListQuery, z.ZodTypeDef, unknown> = z
   .object({
     status: membersListStatusSchema.optional(),
     limit: numberFromString().optional(),
