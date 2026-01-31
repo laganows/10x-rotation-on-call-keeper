@@ -1,0 +1,13 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import ReactRoot from "../../components/app/ReactRoot";
+
+const { planId } = Astro.params;
+const title = "Plan details · Rotation On-Call Keeper";
+const initialUrl = Astro.url.pathname + Astro.url.search;
+const routeParams = planId ? { planId } : undefined;
+---
+
+<Layout title={title}>
+  <ReactRoot client:load routeId="planDetail" routeParams={routeParams} initialUrl={initialUrl} />
+</Layout>

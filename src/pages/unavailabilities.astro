@@ -2,10 +2,10 @@
 import Layout from "../layouts/Layout.astro";
 import ReactRoot from "../components/app/ReactRoot";
 
-const title = "Generator · Rotation On-Call Keeper";
+const title = "Unavailabilities · Rotation On-Call Keeper";
 const initialUrl = Astro.url.pathname + Astro.url.search;
 ---
 
 <Layout title={title}>
-  <ReactRoot client:load routeId="generator" initialUrl={initialUrl} />
+  <ReactRoot client:load routeId="unavailabilities" initialUrl={initialUrl} />
 </Layout>
