@@ -7,6 +7,7 @@ const publicPaths = new Set([
   "/register",
   "/recover",
   "/api/auth/login",
+  "/api/auth/register",
 ]);
 
 const parseAuthRequired = () => {
