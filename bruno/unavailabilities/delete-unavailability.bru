@@ -1,0 +1,12 @@
+meta {
+  name: DELETE unavailability
+  type: http
+  seq: 32
+}
+
+delete {
+  url: {{baseUrl}}/api/unavailabilities/{{unavailabilityId}}
+  body: none
+  auth: none
+}
+

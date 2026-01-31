@@ -1,0 +1,22 @@
+meta {
+  name: POST unavailabilities (create)
+  type: http
+  seq: 31
+}
+
+post {
+  url: {{baseUrl}}/api/unavailabilities?onConflict=error
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "memberId": "{{memberId}}",
+    "day": "2026-02-15"
+  }
+}
