@@ -21,7 +21,7 @@ export const PlanDetailView = ({ planId }: PlanDetailViewProps) => {
   const [showStats, setShowStats] = useState(false);
   const stats = useStatsPlan(planId, showStats && isPlanIdValid);
 
-  const assignments = assignmentsState.data ?? [];
+  const assignments = useMemo(() => assignmentsState.data ?? [], [assignmentsState.data]);
   const unassignedDays = useMemo(() => extractUnassignedDays(assignments), [assignments]);
 
   if (!isPlanIdValid) {
@@ -40,9 +40,7 @@ export const PlanDetailView = ({ planId }: PlanDetailViewProps) => {
     return (
       <div className="rounded-lg border bg-card p-6 shadow-sm">
         <h1 className="text-2xl font-semibold">Plan not found</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The plan you are looking for does not exist.
-        </p>
+        <p className="mt-2 text-sm text-muted-foreground">The plan you are looking for does not exist.</p>
         <Button asChild size="sm" variant="outline" className="mt-4">
           <a href="/plans">Back to plans</a>
         </Button>
@@ -72,7 +70,10 @@ export const PlanDetailView = ({ planId }: PlanDetailViewProps) => {
       )}
 
       {(planState.status === "error" || assignmentsState.status === "error") && (
-        <div className="rounded-md border border-destructive/50 bg-destructive/5 px-3 py-2 text-sm text-destructive" role="alert">
+        <div
+          className="rounded-md border border-destructive/50 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+          role="alert"
+        >
           {planState.error?.message ?? assignmentsState.error?.message ?? "Failed to load plan data."}
           <div className="mt-2">
             <Button size="sm" variant="outline" onClick={refetchAll}>
@@ -129,11 +130,12 @@ export const PlanDetailView = ({ planId }: PlanDetailViewProps) => {
         </div>
         {showStats ? (
           <div className="mt-4 space-y-3">
-            {stats.status === "loading" ? (
-              <p className="text-sm text-muted-foreground">Loading plan stats...</p>
-            ) : null}
+            {stats.status === "loading" ? <p className="text-sm text-muted-foreground">Loading plan stats...</p> : null}
             {stats.status === "error" ? (
-              <div className="rounded-md border border-destructive/50 bg-destructive/5 px-3 py-2 text-sm text-destructive" role="alert">
+              <div
+                className="rounded-md border border-destructive/50 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+                role="alert"
+              >
                 {stats.error?.message}
                 <div className="mt-2">
                   <Button size="sm" variant="outline" onClick={stats.refetch}>

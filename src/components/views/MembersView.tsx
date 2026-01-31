@@ -1,6 +1,13 @@
 import { type FormEvent, useMemo, useState } from "react";
 
-import type { ApiDataResponse, MemberDto, MemberListItemDto, MembersListStatus } from "@/types";
+import type {
+  ApiDataResponse,
+  MemberDto,
+  MemberListItemDto,
+  MembersListStatus,
+  MembersListSort,
+  PaginationOrder,
+} from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,8 +42,8 @@ export const MembersView = () => {
   const query = useMemo(
     () => ({
       status,
-      sort: "createdAt",
-      order: "desc",
+      sort: "createdAt" as MembersListSort,
+      order: "desc" as PaginationOrder,
       limit: 50,
       offset: 0,
     }),

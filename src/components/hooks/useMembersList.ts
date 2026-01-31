@@ -52,7 +52,7 @@ export const useMembersList = (query: MembersListQuery) => {
     if (controller.signal.aborted) return;
 
     if (result.error) {
-      setState((prev) => ({ ...prev, loading: false, error: result.error }));
+      setState((prev) => ({ ...prev, loading: false, error: result.error ?? undefined }));
       return;
     }
 
