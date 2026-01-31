@@ -55,8 +55,7 @@ sequenceDiagram
   participant API as Astro API
   participant Auth as Supabase Auth
 
-  Note over Browser,MW: Tryb dev: gdy auth nie jest wymagany
-    przejscie do aplikacji jest mozliwe bez loginu
+  Note over Browser,MW: Tryb dev: auth nie jest wymagany<br/>mozna wejsc bez loginu
 
   Browser->>MW: Zadanie strony chronionej
   activate MW
