@@ -103,9 +103,6 @@ export const LoginView = () => {
           <a className="text-primary underline-offset-4 hover:underline" href="/register">
             Nie masz konta? Zarejestruj sie
           </a>
-          <a className="text-primary underline-offset-4 hover:underline" href="/recover">
-            Nie pamietasz hasla? Odzyskaj konto
-          </a>
         </div>
         {!state.authRequired ? (
           <p className="text-xs text-muted-foreground">
