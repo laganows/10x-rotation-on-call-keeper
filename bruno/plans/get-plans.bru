@@ -1,0 +1,12 @@
+meta {
+  name: GET plans
+  type: http
+  seq: 40
+}
+
+get {
+  url: {{baseUrl}}/api/plans?limit=50&offset=0&sort=createdAt&order=desc
+  body: none
+  auth: none
+}
+

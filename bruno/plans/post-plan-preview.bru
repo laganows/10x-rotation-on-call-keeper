@@ -1,0 +1,22 @@
+meta {
+  name: POST plans preview
+  type: http
+  seq: 43
+}
+
+post {
+  url: {{baseUrl}}/api/plans/preview
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "startDate": "2026-02-01",
+    "endDate": "2026-02-20"
+  }
+}

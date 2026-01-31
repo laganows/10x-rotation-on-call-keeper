@@ -1,0 +1,12 @@
+meta {
+  name: GET plan assignments
+  type: http
+  seq: 42
+}
+
+get {
+  url: {{baseUrl}}/api/plans/{{planId}}/assignments?limit=50&offset=0&sort=day&order=asc
+  body: none
+  auth: none
+}
+
