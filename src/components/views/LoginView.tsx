@@ -71,6 +71,15 @@ export const LoginView = () => {
         onSubmit={handleSubmit}
         className="mx-auto flex w-full max-w-lg flex-col gap-6 rounded-lg border bg-card p-8 text-card-foreground shadow-sm"
       >
+        <div className="flex items-center gap-3">
+          <div className="flex size-12 items-center justify-center rounded-xl bg-primary text-sm font-semibold text-primary-foreground">
+            ROCK
+          </div>
+          <div>
+            <p className="text-lg font-semibold">Rotation On-Call Keeper</p>
+            <p className="text-xs text-muted-foreground">Sprawiedliwe, deterministyczne grafiki dyzurow.</p>
+          </div>
+        </div>
         <header className="space-y-2">
           <h1 className="text-2xl font-semibold">Zaloguj sie</h1>
           <p className="text-sm text-muted-foreground">Wprowadz email i haslo, aby przejsc do aplikacji.</p>
