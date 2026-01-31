@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 
-import { DEFAULT_USER_ID } from "../../db/supabase.client";
+import { resolveUserId } from "../../lib/auth/auth.server";
 import { errorResponse, jsonResponse, parseJsonBody } from "../../lib/http/responses";
 import { createTeamForOwner, getTeamByOwnerId, updateTeamNameByOwnerId } from "../../lib/services/team.service";
 import { createTeamSchema, updateTeamSchema } from "../../lib/validation/team.schema";
@@ -16,7 +16,11 @@ const conflictCode = "23505";
 
 export const GET: APIRoute = async (context) => {
   const supabase = context.locals.supabase;
-  const userId = DEFAULT_USER_ID;
+  const userResult = resolveUserId(context);
+  if (!userResult.ok) {
+    return userResult.response;
+  }
+  const userId = userResult.userId;
 
   const { data, error } = await getTeamByOwnerId(supabase, userId);
 
@@ -34,7 +38,11 @@ export const GET: APIRoute = async (context) => {
 
 export const POST: APIRoute = async (context) => {
   const supabase = context.locals.supabase;
-  const userId = DEFAULT_USER_ID;
+  const userResult = resolveUserId(context);
+  if (!userResult.ok) {
+    return userResult.response;
+  }
+  const userId = userResult.userId;
 
   const parsed = await parseJsonBody(context.request, createTeamSchema, "[api/team]");
 
@@ -58,7 +66,11 @@ export const POST: APIRoute = async (context) => {
 
 export const PATCH: APIRoute = async (context) => {
   const supabase = context.locals.supabase;
-  const userId = DEFAULT_USER_ID;
+  const userResult = resolveUserId(context);
+  if (!userResult.ok) {
+    return userResult.response;
+  }
+  const userId = userResult.userId;
 
   const parsed = await parseJsonBody(context.request, updateTeamSchema, "[api/team]");
 

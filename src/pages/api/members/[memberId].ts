@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 
-import { DEFAULT_USER_ID } from "../../../db/supabase.client";
+import { resolveUserId } from "../../../lib/auth/auth.server";
 import { errorResponse, jsonResponse, parseJsonBody } from "../../../lib/http/responses";
 import { softDeleteMember, updateMember } from "../../../lib/services/members.service";
 import { memberIdParamSchema, updateMemberSchema } from "../../../lib/validation/members.schema";
@@ -14,7 +14,11 @@ const logServiceError = (context: string, userId: string, error: unknown) => {
 
 export const PATCH: APIRoute = async (context) => {
   const supabase = context.locals.supabase;
-  const userId = DEFAULT_USER_ID;
+  const userResult = resolveUserId(context);
+  if (!userResult.ok) {
+    return userResult.response;
+  }
+  const userId = userResult.userId;
 
   const memberIdParsed = memberIdParamSchema.safeParse(context.params.memberId);
 
@@ -42,7 +46,11 @@ export const PATCH: APIRoute = async (context) => {
 
 export const DELETE: APIRoute = async (context) => {
   const supabase = context.locals.supabase;
-  const userId = DEFAULT_USER_ID;
+  const userResult = resolveUserId(context);
+  if (!userResult.ok) {
+    return userResult.response;
+  }
+  const userId = userResult.userId;
 
   const memberIdParsed = memberIdParamSchema.safeParse(context.params.memberId);
 

@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 
-import { DEFAULT_USER_ID } from "../../../../db/supabase.client";
+import { resolveUserId } from "../../../../lib/auth/auth.server";
 import { errorResponse, jsonResponse } from "../../../../lib/http/responses";
 import { getPlan } from "../../../../lib/services/plans.service";
 import { planIdParamSchema } from "../../../../lib/validation/plans.schema";
@@ -14,7 +14,11 @@ const logServiceError = (context: string, userId: string, error: unknown) => {
 
 export const GET: APIRoute = async (context) => {
   const supabase = context.locals.supabase;
-  const userId = DEFAULT_USER_ID;
+  const userResult = resolveUserId(context);
+  if (!userResult.ok) {
+    return userResult.response;
+  }
+  const userId = userResult.userId;
 
   const planIdParsed = planIdParamSchema.safeParse(context.params.planId);
 

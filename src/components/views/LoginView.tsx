@@ -1,13 +1,18 @@
-import { type FormEvent, useCallback, useEffect, useId } from "react";
+import { type FormEvent, useCallback, useEffect, useId, useState } from "react";
 
+import { SectionMessage } from "@/components/app/SectionMessage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/auth/AuthProvider";
+import { useApiClient } from "@/lib/http/api-client";
 
 export const LoginView = () => {
-  const { state } = useAuth();
+  const { state, refreshSession } = useAuth();
+  const { request } = useApiClient();
   const isLoading = state.status === "loading";
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const baseId = useId();
   const emailId = `${baseId}-email`;
   const passwordId = `${baseId}-password`;
@@ -18,9 +23,47 @@ export const LoginView = () => {
     window.location.assign("/");
   }, [state.status]);
 
-  const handleSubmit = useCallback((event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-  }, []);
+  const handleSubmit = useCallback(
+    async (event: FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      if (isSubmitting) return;
+
+      const form = event.currentTarget;
+      const formData = new FormData(form);
+      const email = String(formData.get("email") ?? "").trim();
+      const password = String(formData.get("password") ?? "");
+
+      if (!email || !password) {
+        setErrorMessage("Wprowadz email i haslo.");
+        return;
+      }
+
+      setErrorMessage(null);
+      setIsSubmitting(true);
+
+      const result = await request<null>("/api/auth/login", {
+        method: "POST",
+        body: { email, password },
+      });
+
+      if (result.error) {
+        if (result.error.status === 401) {
+          setErrorMessage("Nieprawidlowy email lub haslo.");
+        } else {
+          setErrorMessage(result.error.message ?? "Logowanie nie powiodlo sie.");
+        }
+        setIsSubmitting(false);
+        return;
+      }
+
+      await refreshSession();
+
+      if (typeof window !== "undefined") {
+        window.location.assign("/");
+      }
+    },
+    [isSubmitting, refreshSession, request]
+  );
 
   return (
     <main className="min-h-screen bg-muted/40 px-6 py-10">
@@ -35,16 +78,25 @@ export const LoginView = () => {
         <section className="space-y-3">
           <div className="space-y-1">
             <Label htmlFor={emailId}>Email</Label>
-            <Input id={emailId} name="email" type="email" autoComplete="email" required />
+            <Input id={emailId} name="email" type="email" autoComplete="email" required disabled={isLoading || isSubmitting} />
           </div>
           <div className="space-y-1">
             <Label htmlFor={passwordId}>Haslo</Label>
-            <Input id={passwordId} name="password" type="password" autoComplete="current-password" required />
+            <Input
+              id={passwordId}
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              required
+              disabled={isLoading || isSubmitting}
+            />
           </div>
         </section>
 
-        <Button type="submit" disabled={isLoading}>
-          Zaloguj sie
+        {errorMessage ? <SectionMessage variant="error" title="Logowanie nieudane" message={errorMessage} /> : null}
+
+        <Button type="submit" disabled={isLoading || isSubmitting}>
+          {isSubmitting ? "Logowanie..." : "Zaloguj sie"}
         </Button>
 
         <div className="flex flex-wrap items-center justify-between gap-2 text-sm">

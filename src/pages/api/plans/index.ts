@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 
-import { DEFAULT_USER_ID } from "../../../db/supabase.client";
+import { resolveUserId } from "../../../lib/auth/auth.server";
 import { errorResponse, jsonResponse, parseJsonBody } from "../../../lib/http/responses";
 import { listPlans, savePlan } from "../../../lib/services/plans.service";
 import { plansListQuerySchema, savePlanCommandSchema } from "../../../lib/validation/plans.schema";
@@ -20,7 +20,11 @@ const parseQuery = (request: Request) => {
 
 export const GET: APIRoute = async (context) => {
   const supabase = context.locals.supabase;
-  const userId = DEFAULT_USER_ID;
+  const userResult = resolveUserId(context);
+  if (!userResult.ok) {
+    return userResult.response;
+  }
+  const userId = userResult.userId;
 
   const parsedQuery = plansListQuerySchema.safeParse(parseQuery(context.request));
 
@@ -125,7 +129,11 @@ const validateAssignments = (
 
 export const POST: APIRoute = async (context) => {
   const supabase = context.locals.supabase;
-  const userId = DEFAULT_USER_ID;
+  const userResult = resolveUserId(context);
+  if (!userResult.ok) {
+    return userResult.response;
+  }
+  const userId = userResult.userId;
 
   const parsedBody = await parseJsonBody(context.request, savePlanCommandSchema, "[api/plans]");
 

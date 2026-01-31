@@ -1,9 +1,27 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import ReactRoot from "../components/app/ReactRoot";
+import { getProfileByUserId } from "../lib/services/profile.service";
+import { getTeamByOwnerId } from "../lib/services/team.service";
+
+export const prerender = false;
 
 const title = "Login · Rotation On-Call Keeper";
 const initialUrl = Astro.url.pathname + Astro.url.search;
+const { user, supabase } = Astro.locals;
+
+if (user) {
+  const [profileResult, teamResult] = await Promise.all([
+    getProfileByUserId(supabase, user.id),
+    getTeamByOwnerId(supabase, user.id),
+  ]);
+
+  if (!profileResult.error && !teamResult.error && (!profileResult.data || !teamResult.data)) {
+    return Astro.redirect("/setup");
+  }
+
+  return Astro.redirect("/");
+}
 ---
 
 <Layout title={title}>

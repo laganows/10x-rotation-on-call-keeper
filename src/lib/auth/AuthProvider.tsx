@@ -7,6 +7,7 @@ import { getSupabaseBrowserClient } from "@/lib/auth/supabase.browser";
 interface AuthContextValue {
   state: AuthState;
   loginWithOAuth: (provider: Provider) => Promise<void>;
+  refreshSession: () => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -35,6 +36,36 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     session: null,
   });
 
+  const applySession = useCallback(
+    (session: Session | null) => {
+      const mappedSession = mapSession(session);
+      setState({
+        authRequired,
+        status: mappedSession ? "authenticated" : "anonymous",
+        session: mappedSession,
+      });
+    },
+    [authRequired]
+  );
+
+  const refreshSession = useCallback(async () => {
+    const supabase = getSupabaseBrowserClient();
+    if (!supabase) {
+      setState({ authRequired, status: "anonymous", session: null });
+      return;
+    }
+
+    const { data, error } = await supabase.auth.getSession();
+    if (error) {
+      // eslint-disable-next-line no-console -- auth diagnostics
+      console.error("[auth] Failed to refresh session.", error);
+      applySession(null);
+      return;
+    }
+
+    applySession(data.session ?? null);
+  }, [applySession, authRequired]);
+
   useEffect(() => {
     const supabase = getSupabaseBrowserClient();
 
@@ -45,14 +76,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     let isActive = true;
 
-    const applySession = (session: Session | null) => {
+    const applySessionSafe = (session: Session | null) => {
       if (!isActive) return;
-      const mappedSession = mapSession(session);
-      setState({
-        authRequired,
-        status: mappedSession ? "authenticated" : "anonymous",
-        session: mappedSession,
-      });
+      applySession(session);
     };
 
     supabase.auth
@@ -62,29 +88,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (error) {
           // eslint-disable-next-line no-console -- auth diagnostics
           console.error("[auth] Failed to load session.", error);
-          applySession(null);
+          applySessionSafe(null);
           return;
         }
-        applySession(data.session ?? null);
+        applySessionSafe(data.session ?? null);
       })
       .catch((error) => {
         if (!isActive) return;
         // eslint-disable-next-line no-console -- auth diagnostics
         console.error("[auth] Failed to resolve session.", error);
-        applySession(null);
+        applySessionSafe(null);
       });
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      applySession(session ?? null);
+      applySessionSafe(session ?? null);
     });
 
     return () => {
       isActive = false;
       subscription.unsubscribe();
     };
-  }, [authRequired]);
+  }, [applySession, authRequired]);
 
   useEffect(() => {
     if (!authRequired) return;
@@ -133,9 +159,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     () => ({
       state,
       loginWithOAuth,
+      refreshSession,
       logout,
     }),
-    [state, loginWithOAuth, logout]
+    [state, loginWithOAuth, refreshSession, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

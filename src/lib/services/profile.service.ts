@@ -45,25 +45,6 @@ export const createProfile = async (
   userId: UserId,
   displayName: ProfileDto["displayName"]
 ): Promise<ServiceResult<ProfileDto>> => {
-  // #region agent log
-  fetch("http://127.0.0.1:7242/ingest/96b4cd27-b32b-41c7-97c5-f173446ec86a", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      sessionId: "debug-session",
-      runId: "rls-pre-fix",
-      hypothesisId: "H1",
-      location: "src/lib/services/profile.service.ts:49",
-      message: "createProfile insert start",
-      data: {
-        hasUserId: Boolean(userId),
-        displayNameType: displayName === null ? "null" : typeof displayName,
-        displayNameLength: typeof displayName === "string" ? displayName.length : null,
-      },
-      timestamp: Date.now(),
-    }),
-  }).catch(() => null);
-  // #endregion agent log
   const { data, error } = await supabase
     .from("profiles")
     .insert({ user_id: userId, display_name: displayName })

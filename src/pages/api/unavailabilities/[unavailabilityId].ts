@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 
-import { DEFAULT_USER_ID } from "../../../db/supabase.client";
+import { resolveUserId } from "../../../lib/auth/auth.server";
 import { errorResponse } from "../../../lib/http/responses";
 import { deleteUnavailability } from "../../../lib/services/unavailabilities.service";
 import { unavailabilityIdParamSchema } from "../../../lib/validation/unavailabilities.schema";
@@ -14,7 +14,11 @@ const logServiceError = (context: string, userId: string, error: unknown) => {
 
 export const DELETE: APIRoute = async (context) => {
   const supabase = context.locals.supabase;
-  const userId = DEFAULT_USER_ID;
+  const userResult = resolveUserId(context);
+  if (!userResult.ok) {
+    return userResult.response;
+  }
+  const userId = userResult.userId;
 
   const unavailabilityIdParsed = unavailabilityIdParamSchema.safeParse(context.params.unavailabilityId);
 

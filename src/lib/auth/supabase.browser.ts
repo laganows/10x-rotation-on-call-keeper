@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
+import { createBrowserClient } from "@supabase/ssr";
 
 import type { SupabaseClient } from "@/db/supabase.client";
 import type { Database } from "@/db/database.types";
@@ -15,6 +15,11 @@ export const getSupabaseBrowserClient = (): SupabaseClient | null => {
     return browserClient;
   }
 
+  if (typeof document === "undefined") {
+    browserClient = null;
+    return browserClient;
+  }
+
   if (!supabaseUrl || !supabaseAnonKey) {
     browserClient = null;
     return browserClient;
@@ -27,7 +32,36 @@ export const getSupabaseBrowserClient = (): SupabaseClient | null => {
     return browserClient;
   }
 
-  browserClient = createClient<Database>(supabaseUrl, supabaseAnonKey);
+  browserClient = createBrowserClient<Database>(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      getAll() {
+        return document.cookie
+          .split(";")
+          .map((cookie) => cookie.trim())
+          .filter(Boolean)
+          .map((cookie) => {
+            const [name, ...rest] = cookie.split("=");
+            return { name, value: decodeURIComponent(rest.join("=")) };
+          });
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          const segments: string[] = [`${name}=${encodeURIComponent(value)}`];
+          if (options?.path) segments.push(`path=${options.path}`);
+          if (options?.domain) segments.push(`domain=${options.domain}`);
+          if (options?.maxAge !== undefined) segments.push(`max-age=${options.maxAge}`);
+          if (options?.expires) {
+            const expires =
+              options.expires instanceof Date ? options.expires.toUTCString() : String(options.expires);
+            segments.push(`expires=${expires}`);
+          }
+          if (options?.sameSite) segments.push(`samesite=${options.sameSite}`);
+          if (options?.secure) segments.push("secure");
+          document.cookie = segments.join("; ");
+        });
+      },
+    },
+  });
   return browserClient;
 };
 

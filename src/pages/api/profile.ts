@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 
-import { DEFAULT_USER_ID, supabaseClient } from "../../db/supabase.client";
+import { resolveUserId } from "../../lib/auth/auth.server";
 import { errorResponse, jsonResponse, parseJsonBody } from "../../lib/http/responses";
 import { createProfile, getProfileByUserId, updateProfile } from "../../lib/services/profile.service";
 import { createProfileSchema, updateProfileSchema } from "../../lib/validation/profile.schema";
@@ -13,9 +13,13 @@ const logServiceError = (context: string, userId: string, error: unknown) => {
 
 const conflictCode = "23505";
 
-export const GET: APIRoute = async () => {
-  const supabase = supabaseClient;
-  const userId = DEFAULT_USER_ID;
+export const GET: APIRoute = async (context) => {
+  const supabase = context.locals.supabase;
+  const userResult = resolveUserId(context);
+  if (!userResult.ok) {
+    return userResult.response;
+  }
+  const userId = userResult.userId;
   const { data, error } = await getProfileByUserId(supabase, userId);
 
   if (error) {
@@ -30,10 +34,14 @@ export const GET: APIRoute = async () => {
   return jsonResponse({ data }, 200);
 };
 
-export const POST: APIRoute = async ({ request }) => {
-  const supabase = supabaseClient;
-  const userId = DEFAULT_USER_ID;
-  const parsed = await parseJsonBody(request, createProfileSchema, "[api/profile]");
+export const POST: APIRoute = async (context) => {
+  const supabase = context.locals.supabase;
+  const userResult = resolveUserId(context);
+  if (!userResult.ok) {
+    return userResult.response;
+  }
+  const userId = userResult.userId;
+  const parsed = await parseJsonBody(context.request, createProfileSchema, "[api/profile]");
 
   if (!parsed.ok) {
     return parsed.response;
@@ -75,10 +83,14 @@ export const POST: APIRoute = async ({ request }) => {
   return jsonResponse({ data: created.data }, 201);
 };
 
-export const PATCH: APIRoute = async ({ request }) => {
-  const supabase = supabaseClient;
-  const userId = DEFAULT_USER_ID;
-  const parsed = await parseJsonBody(request, updateProfileSchema, "[api/profile]");
+export const PATCH: APIRoute = async (context) => {
+  const supabase = context.locals.supabase;
+  const userResult = resolveUserId(context);
+  if (!userResult.ok) {
+    return userResult.response;
+  }
+  const userId = userResult.userId;
+  const parsed = await parseJsonBody(context.request, updateProfileSchema, "[api/profile]");
 
   if (!parsed.ok) {
     return parsed.response;

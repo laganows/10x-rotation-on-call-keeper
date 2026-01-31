@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 
-import { DEFAULT_USER_ID } from "../../../db/supabase.client";
+import { resolveUserId } from "../../../lib/auth/auth.server";
 import { errorResponse, jsonResponse, parseJsonBody } from "../../../lib/http/responses";
 import { generatePlanPreview } from "../../../lib/services/plans.service";
 import { planPreviewCommandSchema } from "../../../lib/validation/plans.schema";
@@ -43,7 +43,11 @@ const isDateRangeValid = (startDate: string, endDate: string) => {
 
 export const POST: APIRoute = async (context) => {
   const supabase = context.locals.supabase;
-  const userId = DEFAULT_USER_ID;
+  const userResult = resolveUserId(context);
+  if (!userResult.ok) {
+    return userResult.response;
+  }
+  const userId = userResult.userId;
 
   const parsedBody = await parseJsonBody(context.request, planPreviewCommandSchema, "[api/plans/preview]");
 
