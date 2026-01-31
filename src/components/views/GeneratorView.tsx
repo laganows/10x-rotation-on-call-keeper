@@ -4,6 +4,7 @@ import type { PlanPreviewAssignmentDto, PlanPreviewCounterDto } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { usePlanPreview } from "@/components/hooks/usePlanPreview";
 import { useSavePlan } from "@/components/hooks/useSavePlan";
 import { addDaysToYyyyMmDd, diffDaysInclusive, isValidYyyyMmDd, todayUtcYyyyMmDd } from "@/lib/dates/utc";
@@ -183,7 +184,7 @@ export const GeneratorView = () => {
           <header className="space-y-1">
             <h2 className="text-lg font-semibold">Review</h2>
             <p className="text-sm text-muted-foreground">
-              Range: {preview.startDate} → {preview.endDate} ({preview.rangeDays} days)
+              Range: {preview.startDate} to {preview.endDate} ({preview.rangeDays} days)
             </p>
           </header>
 
@@ -194,30 +195,28 @@ export const GeneratorView = () => {
             </div>
           ) : null}
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="text-left text-muted-foreground">
-                <tr className="border-b">
-                  <th className="py-2">Day</th>
-                  <th className="py-2">Member</th>
-                </tr>
-              </thead>
-              <tbody>
-                {assignments.map((assignment) => (
-                  <tr key={assignment.day} className="border-b">
-                    <td className="py-2">{assignment.day}</td>
-                    <td className="py-2">
-                      {assignment.memberId ? (
-                        assignment.memberLabel
-                      ) : (
-                        <span className="text-destructive">UNASSIGNED</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead scope="col">Day</TableHead>
+                <TableHead scope="col">Member</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {assignments.map((assignment) => (
+                <TableRow key={assignment.day}>
+                  <TableCell>{assignment.day}</TableCell>
+                  <TableCell>
+                    {assignment.memberId ? (
+                      assignment.memberLabel
+                    ) : (
+                      <span className="text-destructive">UNASSIGNED</span>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="rounded-md border bg-background p-4">

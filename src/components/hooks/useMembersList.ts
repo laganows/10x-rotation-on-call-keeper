@@ -27,7 +27,7 @@ const buildQuery = (query: MembersListQuery) => {
   return params.toString();
 };
 
-export const useMembersList = (query: MembersListQuery) => {
+export const useMembersList = (query: MembersListQuery, enabled = true) => {
   const { request } = useApiClient();
   const abortRef = useRef<AbortController | null>(null);
   const [state, setState] = useState<MembersListState>({
@@ -39,6 +39,11 @@ export const useMembersList = (query: MembersListQuery) => {
   const queryString = useMemo(() => buildQuery(query), [query]);
 
   const fetchMembers = useCallback(async () => {
+    if (!enabled) {
+      setState((prev) => ({ ...prev, loading: false }));
+      return;
+    }
+
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -71,7 +76,7 @@ export const useMembersList = (query: MembersListQuery) => {
       total: payload.page.total ?? payload.data.length,
       loading: false,
     });
-  }, [queryString, request]);
+  }, [enabled, queryString, request]);
 
   useEffect(() => {
     void fetchMembers();

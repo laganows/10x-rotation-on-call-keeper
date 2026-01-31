@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useMembersList } from "@/components/hooks/useMembersList";
 import { useUnavailabilitiesList } from "@/components/hooks/useUnavailabilitiesList";
 import { useApiClient } from "@/lib/http/api-client";
@@ -313,29 +314,29 @@ export const UnavailabilitiesView = () => {
         ) : null}
 
         {sortedItems.length > 0 ? (
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="text-left text-muted-foreground">
-                <tr className="border-b">
-                  <th className="py-2">Day</th>
-                  <th className="py-2">Member</th>
-                  <th className="py-2">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
+          <div className="mt-4">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead scope="col">Day</TableHead>
+                  <TableHead scope="col">Member</TableHead>
+                  <TableHead scope="col">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {sortedItems.map((item) => (
-                  <tr key={item.unavailabilityId} className="border-b">
-                    <td className="py-2">{item.day}</td>
-                    <td className="py-2">{memberLabelById.get(item.memberId) ?? item.memberId}</td>
-                    <td className="py-2">
+                  <TableRow key={item.unavailabilityId}>
+                    <TableCell>{item.day}</TableCell>
+                    <TableCell>{memberLabelById.get(item.memberId) ?? item.memberId}</TableCell>
+                    <TableCell>
                       <Button size="sm" variant="destructive" onClick={() => handleDelete(item)}>
                         Delete
                       </Button>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
         ) : null}
       </section>

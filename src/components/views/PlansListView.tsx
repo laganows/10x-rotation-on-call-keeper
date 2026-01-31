@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { usePlansList } from "@/components/hooks/usePlansList";
 
 export const PlansListView = () => {
@@ -52,31 +53,31 @@ export const PlansListView = () => {
         ) : null}
 
         {items.length > 0 ? (
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="text-left text-muted-foreground">
-                <tr className="border-b">
-                  <th className="py-2">Start date</th>
-                  <th className="py-2">End date</th>
-                  <th className="py-2">Created at</th>
-                  <th className="py-2">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
+          <div className="mt-4">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead scope="col">Start date</TableHead>
+                  <TableHead scope="col">End date</TableHead>
+                  <TableHead scope="col">Created at</TableHead>
+                  <TableHead scope="col">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {items.map((plan) => (
-                  <tr key={plan.planId} className="border-b">
-                    <td className="py-2">{plan.startDate}</td>
-                    <td className="py-2">{plan.endDate}</td>
-                    <td className="py-2">{new Date(plan.createdAt).toLocaleString()}</td>
-                    <td className="py-2">
+                  <TableRow key={plan.planId}>
+                    <TableCell>{plan.startDate}</TableCell>
+                    <TableCell>{plan.endDate}</TableCell>
+                    <TableCell>{new Date(plan.createdAt).toLocaleString()}</TableCell>
+                    <TableCell>
                       <Button asChild size="sm" variant="outline">
                         <a href={`/plans/${plan.planId}`}>Open</a>
                       </Button>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
         ) : null}
       </section>

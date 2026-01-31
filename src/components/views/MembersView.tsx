@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useMembersList } from "@/components/hooks/useMembersList";
 import { useApiClient } from "@/lib/http/api-client";
 import type { ApiErrorViewModel } from "@/lib/view-models/ui";
@@ -245,27 +246,27 @@ export const MembersView = () => {
         ) : null}
 
         {filteredItems.length > 0 ? (
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="text-left text-muted-foreground">
-                <tr className="border-b">
-                  <th className="py-2">Name</th>
-                  <th className="py-2">Saved count</th>
-                  <th className="py-2">Initial count</th>
-                  <th className="py-2">Status</th>
-                  <th className="py-2">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
+          <div className="mt-4">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead scope="col">Name</TableHead>
+                  <TableHead scope="col">Saved count</TableHead>
+                  <TableHead scope="col">Initial count</TableHead>
+                  <TableHead scope="col">Status</TableHead>
+                  <TableHead scope="col">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {filteredItems.map((member) => (
-                  <tr key={member.memberId} className="border-b">
-                    <td className="py-2">{member.displayName}</td>
-                    <td className="py-2">{member.savedCount}</td>
-                    <td className="py-2">{member.initialOnCallCount}</td>
-                    <td className="py-2">
+                  <TableRow key={member.memberId}>
+                    <TableCell>{member.displayName}</TableCell>
+                    <TableCell>{member.savedCount}</TableCell>
+                    <TableCell>{member.initialOnCallCount}</TableCell>
+                    <TableCell>
                       {member.deletedAt ? <span className="text-muted-foreground">Removed</span> : "Active"}
-                    </td>
-                    <td className="py-2">
+                    </TableCell>
+                    <TableCell>
                       {member.deletedAt ? null : (
                         <div className="flex flex-wrap gap-2">
                           <Button size="sm" variant="outline" onClick={() => openEditForm(member)}>
@@ -276,11 +277,11 @@ export const MembersView = () => {
                           </Button>
                         </div>
                       )}
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
         ) : null}
       </section>

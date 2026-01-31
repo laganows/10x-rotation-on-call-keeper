@@ -1,4 +1,6 @@
+import { SectionMessage } from "@/components/app/SectionMessage";
 import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useStatsGlobal } from "@/components/hooks/useStatsGlobal";
 
 export const StatsView = () => {
@@ -14,14 +16,16 @@ export const StatsView = () => {
       {status === "loading" ? <p className="text-sm text-muted-foreground">Loading stats...</p> : null}
 
       {status === "error" && error ? (
-        <div className="rounded-md border border-destructive/50 bg-destructive/5 px-3 py-2 text-sm text-destructive" role="alert">
-          {error.message}
-          <div className="mt-2">
+        <SectionMessage
+          variant="error"
+          title="Unable to load stats"
+          message={error.message}
+          action={
             <Button size="sm" variant="outline" onClick={refetch}>
               Retry
             </Button>
-          </div>
-        </div>
+          }
+        />
       ) : null}
 
       {status === "success" && data ? (
@@ -49,25 +53,25 @@ export const StatsView = () => {
           <section className="rounded-lg border bg-card p-4 shadow-sm">
             <h2 className="text-lg font-semibold">Assignments by member</h2>
             {data.byMember.length === 0 ? (
-              <p className="mt-3 text-sm text-muted-foreground">No member stats available.</p>
+              <SectionMessage title="No member stats" message="No member stats available yet." />
             ) : (
-              <div className="mt-4 overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="text-left text-muted-foreground">
-                    <tr className="border-b">
-                      <th className="py-2">Member</th>
-                      <th className="py-2">Assigned days</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+              <div className="mt-4">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead scope="col">Member</TableHead>
+                      <TableHead scope="col">Assigned days</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
                     {data.byMember.map((row) => (
-                      <tr key={row.memberId} className="border-b">
-                        <td className="py-2">{row.displayName}</td>
-                        <td className="py-2">{row.assignedDays}</td>
-                      </tr>
+                      <TableRow key={row.memberId}>
+                        <TableCell>{row.displayName}</TableCell>
+                        <TableCell>{row.assignedDays}</TableCell>
+                      </TableRow>
                     ))}
-                  </tbody>
-                </table>
+                  </TableBody>
+                </Table>
               </div>
             )}
           </section>
