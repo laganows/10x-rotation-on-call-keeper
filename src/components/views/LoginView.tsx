@@ -78,7 +78,14 @@ export const LoginView = () => {
         <section className="space-y-3">
           <div className="space-y-1">
             <Label htmlFor={emailId}>Email</Label>
-            <Input id={emailId} name="email" type="email" autoComplete="email" required disabled={isLoading || isSubmitting} />
+            <Input
+              id={emailId}
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              disabled={isLoading || isSubmitting}
+            />
           </div>
           <div className="space-y-1">
             <Label htmlFor={passwordId}>Haslo</Label>
