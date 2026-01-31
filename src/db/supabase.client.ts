@@ -4,14 +4,14 @@ import type { SupabaseClient as SupabaseClientBase } from "@supabase/supabase-js
 
 import type { Database } from "../db/database.types.ts";
 
-const supabaseUrl = import.meta.env.SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.SUPABASE_KEY;
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error("Missing Supabase env vars. Provide SUPABASE_URL and SUPABASE_KEY.");
+  throw new Error("Missing Supabase env vars. Provide PUBLIC_SUPABASE_URL and PUBLIC_SUPABASE_ANON_KEY.");
 }
 
 if (supabaseAnonKey.split(".").length !== 3) {
-  throw new Error("Supabase key must be a JWT. Check SUPABASE_KEY.");
+  throw new Error("Supabase key must be a JWT. Check PUBLIC_SUPABASE_ANON_KEY.");
 }
 
 export const cookieOptions: CookieOptionsWithName = {
