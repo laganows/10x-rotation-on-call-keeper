@@ -47,6 +47,11 @@ Product requirements and MVP definition live in:
 
 - **Supabase** (PostgreSQL + Auth + Row Level Security)
 
+### Testing
+
+- **Vitest** (unit/integration tests)
+- **Playwright** (E2E tests)
+
 ### CI/CD & hosting (as planned in PRD)
 
 - **GitHub Actions** (CI)
