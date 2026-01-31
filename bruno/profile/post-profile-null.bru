@@ -1,0 +1,21 @@
+meta {
+  name: POST profile (displayName null)
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/profile
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "displayName": "Test"
+  }
+}

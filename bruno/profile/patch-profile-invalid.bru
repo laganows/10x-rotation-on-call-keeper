@@ -1,0 +1,21 @@
+meta {
+  name: PATCH profile (invalid body)
+  type: http
+  seq: 5
+}
+
+patch {
+  url: {{baseUrl}}/api/profile
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "displayName": 123
+  }
+}

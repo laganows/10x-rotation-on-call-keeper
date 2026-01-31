@@ -1,0 +1,21 @@
+meta {
+  name: PATCH profile (update)
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseUrl}}/api/profile
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "displayName": "Updated User"
+  }
+}
