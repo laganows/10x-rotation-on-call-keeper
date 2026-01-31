@@ -90,7 +90,11 @@ describe("members.service", () => {
   });
 
   it("uses maxSavedCount as initial_on_call_count when creating member", async () => {
-    let capturedInsert: Record<string, unknown> | null = null;
+    interface MemberInsertPayload {
+      initial_on_call_count: number;
+      [key: string]: unknown;
+    }
+    let capturedInsert: MemberInsertPayload = { initial_on_call_count: 0 };
     const supabase = {
       from: vi.fn((table: string) => {
         if (table === "teams") {
@@ -108,7 +112,7 @@ describe("members.service", () => {
 
         if (table === "members") {
           return {
-            insert: (payload: Record<string, unknown>) => {
+            insert: (payload: MemberInsertPayload) => {
               capturedInsert = payload;
               return {
                 select: () => ({
@@ -135,7 +139,7 @@ describe("members.service", () => {
     };
 
     const result = await createMember(supabase as never, "user-1", "Grace");
-    expect(capturedInsert?.initial_on_call_count).toBe(3);
+    expect(capturedInsert.initial_on_call_count).toBe(3);
     expect(result.data?.initialOnCallCount).toBe(3);
   });
 
