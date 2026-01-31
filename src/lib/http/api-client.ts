@@ -97,6 +97,9 @@ const buildHeaders = (
   return headers;
 };
 
+const isAbortError = (error: unknown) =>
+  error instanceof DOMException ? error.name === "AbortError" : (error as { name?: string })?.name === "AbortError";
+
 export const useApiClient = () => {
   const { state } = useAuth();
   const { reportError } = useAppNotifications();
@@ -120,6 +123,13 @@ export const useApiClient = () => {
         }
         return result;
       } catch (error) {
+        if (isAbortError(error)) {
+          return {
+            data: null,
+            error: null,
+            status: 0,
+          };
+        }
         const errorViewModel = networkErrorToViewModel(error);
         reportError(errorViewModel);
         return {

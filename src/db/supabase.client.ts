@@ -54,4 +54,5 @@ export const createSupabaseServerInstance = (context: { headers: Headers; cookie
 
 export type SupabaseClient = SupabaseJsClient<Database>;
 
-export const DEFAULT_USER_ID = "9609302b-599f-4d15-849c-28a8d197d8a8";
+const defaultUserId = import.meta.env.DEFAULT_USER_ID;
+export const DEFAULT_USER_ID = defaultUserId?.trim() || null;
