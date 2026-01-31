@@ -1,13 +1,13 @@
 <authentication_analysis>
-## Analiza przepływów autentykacji (OAuth, MVP)
+## Analiza przeplywow autentykacji (email/haslo, MVP)
 
 ### 1) Przepływy autentykacji z PRD i auth-spec
 
-- **Logowanie OAuth (US-001)**:
+- **Logowanie email/haslo (MVP)**:
   - Wejście na `/login`
-  - Kliknięcie przycisku OAuth (GitHub)
-  - Powrót z providera z aktywną sesją Supabase
-  - Przejście do aplikacji (`/`), a przy braku profilu/zespołu do `/setup`
+  - Podanie email i hasla
+  - Zatwierdzenie logowania w Supabase Auth
+  - Przejscie do aplikacji (`/`), a przy braku profilu/zespolu do `/setup`
 
 - **Wylogowanie (US-001)**:
   - Kliknięcie `Logout`
@@ -25,7 +25,7 @@
 - **Przeglądarka**: nawigacja, UI React, przechowywanie sesji Supabase.
 - **Middleware**: (docelowo) odczyt sesji z cookies i decyzja o redirect.
 - **Astro API**: endpointy domenowe wymagające tokenu (Authorization Bearer).
-- **Supabase Auth**: OAuth sign-in/out, sesja i odświeżanie tokenów.
+- **Supabase Auth**: logowanie email/haslo, sesja i odswiezanie tokenow.
 
 ### 3) Tokeny i odświeżanie
 
@@ -39,8 +39,8 @@
 
 - Wejście na trasę chronioną → weryfikacja sesji (SSR docelowo + guard).
 - Brak sesji → redirect do `/login`.
-- Kliknięcie OAuth → Supabase Auth uruchamia przepływ OAuth.
-- Sukces → Supabase zapisuje sesję; React odczytuje sesję i przechodzi do app.
+- Wyslanie formularza logowania → Supabase Auth weryfikuje email/haslo.
+- Sukces → Supabase zapisuje sesje; React odczytuje sesje i przechodzi do app.
 - Bootstrap profilu/zespołu → ewentualny redirect do `/setup`.
 - Logout → czyszczenie sesji i redirect do `/login`.
 </authentication_analysis>
@@ -66,12 +66,10 @@ sequenceDiagram
   end
   deactivate MW
 
-  Browser->>Browser: UI logowania OAuth
+  Browser->>Browser: UI logowania email/haslo
   activate Browser
-  Browser->>Auth: Start OAuth
+  Browser->>Auth: Logowanie email/haslo
   activate Auth
-  Auth-->>Browser: Redirect do providera
-  Browser->>Auth: Powrot po OAuth
   Auth-->>Browser: Sesja aktywna
   deactivate Auth
   deactivate Browser

@@ -1,22 +1,15 @@
-import { type FormEvent, useCallback, useEffect, useId } from "react";
+import { type FormEvent, useCallback, useId } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAuth } from "@/lib/auth/AuthProvider";
 
-export const LoginView = () => {
-  const { state } = useAuth();
-  const isLoading = state.status === "loading";
+export const RegisterView = () => {
   const baseId = useId();
   const emailId = `${baseId}-email`;
   const passwordId = `${baseId}-password`;
-
-  useEffect(() => {
-    if (state.status !== "authenticated") return;
-    if (typeof window === "undefined") return;
-    window.location.assign("/");
-  }, [state.status]);
+  const confirmId = `${baseId}-confirm`;
+  const noteId = `${baseId}-note`;
 
   const handleSubmit = useCallback((event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -29,9 +22,12 @@ export const LoginView = () => {
         className="mx-auto flex w-full max-w-lg flex-col gap-6 rounded-lg border bg-card p-8 text-card-foreground shadow-sm"
       >
         <header className="space-y-2">
-          <h1 className="text-2xl font-semibold">Zaloguj sie</h1>
-          <p className="text-sm text-muted-foreground">Wprowadz email i haslo, aby przejsc do aplikacji.</p>
+          <h1 className="text-2xl font-semibold">Utworz konto</h1>
+          <p className="text-sm text-muted-foreground">
+            Zarejestruj sie, aby uzyskac dostep do generatora i planow.
+          </p>
         </header>
+
         <section className="space-y-3">
           <div className="space-y-1">
             <Label htmlFor={emailId}>Email</Label>
@@ -39,27 +35,30 @@ export const LoginView = () => {
           </div>
           <div className="space-y-1">
             <Label htmlFor={passwordId}>Haslo</Label>
-            <Input id={passwordId} name="password" type="password" autoComplete="current-password" required />
+            <Input id={passwordId} name="password" type="password" autoComplete="new-password" required />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor={confirmId}>Powtorz haslo</Label>
+            <Input id={confirmId} name="confirmPassword" type="password" autoComplete="new-password" required />
           </div>
         </section>
 
-        <Button type="submit" disabled={isLoading}>
-          Zaloguj sie
+        <p id={noteId} className="text-xs text-muted-foreground">
+          Integracja rejestracji bedzie dodana w kolejnym kroku.
+        </p>
+
+        <Button type="submit" aria-describedby={noteId}>
+          Utworz konto
         </Button>
 
         <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
-          <a className="text-primary underline-offset-4 hover:underline" href="/register">
-            Nie masz konta? Zarejestruj sie
+          <a className="text-primary underline-offset-4 hover:underline" href="/login">
+            Masz konto? Zaloguj sie
           </a>
           <a className="text-primary underline-offset-4 hover:underline" href="/recover">
-            Nie pamietasz hasla? Odzyskaj konto
+            Odzyskaj konto
           </a>
         </div>
-        {!state.authRequired ? (
-          <p className="text-xs text-muted-foreground">
-            Auth is optional in dev. You can also open the app without logging in.
-          </p>
-        ) : null}
       </form>
     </main>
   );

@@ -1,12 +1,13 @@
-# Architektura modułu autentykacji (logowanie/wylogowanie, OAuth)
+# Architektura modułu autentykacji (logowanie/wylogowanie, email/hasło)
 
 ## 0. Kontekst i cele
 
 Zakres specyfikacji dotyczy modułu auth zgodnego z wymaganiami PRD (US-001) oraz stackiem: Astro 5 + React 19 + TypeScript 5 + Supabase Auth. Kluczowe założenia:
 
 - Dostęp do aplikacji wyłącznie po zalogowaniu (w produkcji); brak ról i wielozespołowości w MVP.
-- Obecne zachowanie aplikacji nie może zostać naruszone: OAuth login (np. GitHub) pozostaje dostępny, App Shell z top-nav działa po zalogowaniu, a po pierwszym logowaniu uruchamia się Setup (bootstrap profilu/zespołu).
-- Zakres MVP obejmuje wyłącznie logowanie/wylogowanie przez OAuth; rejestracja email/hasło i odzyskiwanie hasła są poza MVP.
+- Obecne zachowanie aplikacji nie może zostać naruszone: App Shell z top-nav działa po zalogowaniu, a po pierwszym logowaniu uruchamia się Setup (bootstrap profilu/zespołu).
+- Zakres MVP obejmuje logowanie/wylogowanie email/hasło; rejestracja i odzyskiwanie hasła są poza MVP (formularze UI bez backendu).
+- OAuth GitHub jest poza MVP (do rozważenia w kolejnym etapie).
 - Auth w trybie dev może być opcjonalny (flaga `PUBLIC_AUTH_REQUIRED`).
 
 ## 1. Architektura interfejsu użytkownika
@@ -14,9 +15,11 @@ Zakres specyfikacji dotyczy modułu auth zgodnego z wymaganiami PRD (US-001) ora
 ### 1.1. Widoki i routing (auth vs non-auth)
 
 **Trasy publiczne (unauth):**
-- `/login` — logowanie (OAuth, np. GitHub).
+- `/login` — logowanie (email/hasło).
+- `/register` — rejestracja (UI; backend poza MVP).
+- `/recover` — odzyskiwanie konta (UI; backend poza MVP).
 
-W MVP nie przewidujemy dodatkowych tras auth.
+W MVP nie przewidujemy innych tras auth poza powyższymi.
 
 **Trasy chronione (auth):**
 - `/` (Generator), `/members`, `/unavailabilities`, `/plans`, `/plans/:planId`, `/stats`, `/setup`.
@@ -25,19 +28,20 @@ W MVP nie przewidujemy dodatkowych tras auth.
 
 **Do rozszerzenia:**
 - `src/components/views/LoginView.tsx`
-  - Utrzymanie przycisku OAuth (GitHub) zgodnie z US-001.
-  - Uproszczony widok: brak pól email/hasło w MVP.
+  - Formularz email/hasło zgodny z US-001.
+  - Walidacja wymaganych pól (bez integracji backendu).
 - `src/lib/auth/AuthProvider.tsx`
-  - Zachowanie `loginWithOAuth` i `logout` bez zmian funkcjonalnych.
-  - Metody email/hasło poza MVP (do ewentualnego dodania później).
+  - `logout` bez zmian funkcjonalnych.
+  - Logowanie email/hasło do podłączenia w kolejnym kroku.
 - `src/components/app/AppShellLayout.tsx`
   - Bez zmian w strukturze; utrzymanie Logout i labela użytkownika.
 
 **Nowe komponenty (React):**
-- Brak w MVP (logowanie wyłącznie przez `/login` i OAuth).
+- `src/components/views/RegisterView.tsx` (formularz rejestracji, UI-only).
+- `src/components/views/RecoverView.tsx` (formularz odzyskiwania konta, UI-only).
 
 **Nowe/rozszerzone typy:**
-- `src/lib/view-models/ui.ts`: brak nowych `RouteId` w MVP.
+- `src/lib/view-models/ui.ts`: nowe `RouteId` dla `register` i `recover`.
 
 ### 1.3. Podział odpowiedzialności: Astro vs React
 
@@ -48,25 +52,33 @@ W MVP nie przewidujemy dodatkowych tras auth.
 - Astro przekazuje do ReactRoot `routeId` i `initialUrl`.
 
 **React (views + hooks):**
-- Prosty widok logowania (OAuth), interakcje UI i obsługa stanów.
-- Integracja z Supabase Auth (OAuth sign-in/out).
+- Prosty widok logowania (email/hasło), interakcje UI i obsługa stanów.
+- Integracja z Supabase Auth (email/hasło + sign-out).
 - Kontrolowanie nawigacji po sukcesie (np. redirect do `/setup`).
 
 ### 1.4. Walidacje i komunikaty błędów
 
-**Logowanie (`/login`, OAuth):**
-- Brak pól formularza w MVP; pojedynczy przycisk OAuth.
+**Logowanie (`/login`, email/hasło):**
+- Pola email/hasło z walidacją required + format email.
 - Błędy:
-  - `access_denied` / `oauth_callback_error` -> komunikat "Nie udało się zalogować. Spróbuj ponownie."
+  - Nieprawidłowe dane -> komunikat "Nieprawidłowy email lub hasło."
   - Problemy sieciowe -> toast + banner globalny.
 - Po stronie klienta: blokada wielokrotnego kliknięcia (loading).
+
+**Rejestracja (`/register`):**
+- Formularz UI; walidacja email/hasło/powtórzenie hasła.
+- Backend rejestracji poza MVP.
+
+**Odzyskiwanie (`/recover`):**
+- Formularz UI; email wymagany.
+- Backend odzyskiwania konta poza MVP.
 
 **Wspólne zasady:**
 - Błędy 5xx i sieciowe w `GlobalErrorBanner` (z `NotificationsProvider`).
 
 ### 1.5. Scenariusze kluczowe
 
-- **Nowy użytkownik (OAuth)**: `/login` -> OAuth -> powrót -> `/setup` (jeśli brak profilu/zespołu).
+- **Nowy użytkownik (email/hasło)**: `/login` -> podanie danych -> `/setup` (jeśli brak profilu/zespołu).
 - **Powrót po zalogowaniu**: sesja aktywna -> `/login` przekierowuje do `/`.
 - **Wylogowanie**: kliknięcie Logout -> `signOut()` -> redirect do `/login`.
 - **Brak sesji**: wejście na `/members` -> redirect do `/login` (SSR i client guard).
@@ -76,7 +88,7 @@ W MVP nie przewidujemy dodatkowych tras auth.
 
 ### 2.1. Endpointy API i kontrakty
 
-Auth może działać bezpośrednio na Supabase SDK w przeglądarce. W MVP (OAuth) nie przewidujemy endpointów dla rejestracji/resetu; opcjonalnie tylko wsparcie dla SSR i wylogowania:
+Auth może działać bezpośrednio na Supabase SDK w przeglądarce. W MVP (email/hasło) nie przewidujemy endpointów dla rejestracji/resetu; opcjonalnie tylko wsparcie dla SSR i wylogowania:
 
 **`/api/auth` (opcjonalny namespace w MVP):**
 - `POST /api/auth/sign-out`
@@ -96,14 +108,14 @@ Auth może działać bezpośrednio na Supabase SDK w przeglądarce. W MVP (OAuth
 
 ### 2.3. Mechanizm walidacji danych wejściowych
 
-- Brak dodatkowej walidacji w MVP (OAuth bez formularzy).
-- Jeśli w przyszłości dodamy email/hasło, wrócić do walidacji w Zod i `parseJsonBody`.
+- Walidacja formularzy po stronie klienta (required, format email, zgodność hasła).
+- Jeśli w przyszłości dodamy backend dla email/hasło, wrócić do walidacji w Zod i `parseJsonBody`.
 
 ### 2.4. Obsługa wyjątków i mapowanie błędów
 
 - Spójny format `ApiErrorResponse` (`error.code`, `error.message`, `details`).
 - Mapowanie Supabase -> HTTP (dotyczy tylko, gdy używamy `/api/auth`):
-  - `access_denied` / `oauth_callback_error` -> 401 `unauthorized` lub 400 `bad_request` (zależnie od kontekstu).
+  - Nieprawidłowe dane logowania -> 401 `unauthorized`.
   - Inne błędy auth -> 401 `unauthorized`.
 - Logowanie błędów po stronie serwera z kontekstem (np. `[api/auth]`).
 
@@ -122,11 +134,11 @@ Uwzględniając `output: "server"` i adapter `@astrojs/node`:
 
 ### 3.1. Konfiguracja Supabase
 
-- Włączone provider-y OAuth: GitHub (zgodnie z US-001).
-- Rejestracja email/hasło poza MVP (opcjonalnie do włączenia w przyszłości).
-- Ustawione URL-e przekierowań:
+- OAuth GitHub poza MVP (opcjonalnie do włączenia w przyszłości).
+- Logowanie email/hasło w MVP; rejestracja i odzyskiwanie hasła poza MVP.
+- Ustawione URL-e przekierowań (gdy będzie to potrzebne):
   - `Site URL` -> domena aplikacji.
-  - `Redirect URLs` -> ścieżki wymagane przez OAuth (np. `/login`), bez `/reset-password` w MVP.
+  - `Redirect URLs` -> ścieżki dla flow auth (np. `/login`, `/recover`).
 
 ### 3.2. Zarządzanie sesją
 
@@ -158,7 +170,7 @@ Uwzględniając `output: "server"` i adapter `@astrojs/node`:
 ## 4. Mapowanie na US-001
 
 - **Logowanie i wylogowanie (US-001):**
-  - OAuth GitHub w `LoginView`.
+  - Logowanie email/hasło w `LoginView`; OAuth GitHub poza MVP.
   - `AuthProvider.logout()` wywołuje Supabase `signOut()` i redirect do `/login`.
   - Bez aktywnej sesji brak dostępu do funkcji (redirect w SSR + client guard).
 

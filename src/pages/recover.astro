@@ -1,0 +1,11 @@
+---
+import Layout from "../layouts/Layout.astro";
+import ReactRoot from "../components/app/ReactRoot";
+
+const title = "Recover account · Rotation On-Call Keeper";
+const initialUrl = Astro.url.pathname + Astro.url.search;
+---
+
+<Layout title={title}>
+  <ReactRoot client:load routeId="recover" initialUrl={initialUrl} />
+</Layout>

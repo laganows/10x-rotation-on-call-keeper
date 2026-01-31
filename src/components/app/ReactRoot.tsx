@@ -8,6 +8,8 @@ import type { RouteId, RouteParams } from "@/lib/view-models/ui";
 import { useBootstrap, BootstrapProvider } from "@/lib/bootstrap/BootstrapProvider";
 import { GeneratorView } from "@/components/views/GeneratorView";
 import { LoginView } from "@/components/views/LoginView";
+import { RecoverView } from "@/components/views/RecoverView";
+import { RegisterView } from "@/components/views/RegisterView";
 import { MembersView } from "@/components/views/MembersView";
 import { PlanDetailView } from "@/components/views/PlanDetailView";
 import { PlansListView } from "@/components/views/PlansListView";
@@ -27,6 +29,10 @@ const renderRoute = (routeId: RouteId, routeParams?: RouteParams) => {
   switch (routeId) {
     case "login":
       return <LoginView />;
+    case "register":
+      return <RegisterView />;
+    case "recover":
+      return <RecoverView />;
     case "setup":
       return <SetupView />;
     case "generator":
@@ -65,6 +71,10 @@ const routeToPath = (routeId: RouteId) => {
       return "/stats";
     case "setup":
       return "/setup";
+    case "register":
+      return "/register";
+    case "recover":
+      return "/recover";
     case "login":
     default:
       return "/login";
@@ -123,10 +133,12 @@ const ProtectedApp = ({ routeId, routeParams }: { routeId: RouteId; routeParams?
 };
 
 const ReactRoot = ({ routeId, routeParams, initialUrl }: ReactRootProps) => {
+  const isPublicRoute = routeId === "login" || routeId === "register" || routeId === "recover";
+
   return (
     <AuthProvider>
       <NotificationsProvider>
-        {routeId === "login" ? (
+        {isPublicRoute ? (
           <div id="app" data-route={routeId} data-initial-url={initialUrl}>
             {renderRoute(routeId, routeParams)}
           </div>

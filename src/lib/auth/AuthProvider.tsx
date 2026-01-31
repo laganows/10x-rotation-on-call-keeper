@@ -25,6 +25,7 @@ const mapSession = (session: Session | null): AuthState["session"] => {
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+const publicAuthPaths = new Set(["/login", "/register", "/recover"]);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const authRequired = parseAuthRequired();
@@ -90,7 +91,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (state.status !== "anonymous") return;
     if (typeof window === "undefined") return;
 
-    if (window.location.pathname !== "/login") {
+    if (!publicAuthPaths.has(window.location.pathname)) {
       window.location.assign("/login");
     }
   }, [authRequired, state.status]);
