@@ -38,60 +38,63 @@ export const RegisterView = () => {
 
   const isSubmitting = status === "submitting";
 
-  const handleSubmit = useCallback(async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setFormError(null);
-    setFieldErrors({});
+  const handleSubmit = useCallback(
+    async (event: FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      setFormError(null);
+      setFieldErrors({});
 
-    const trimmedEmail = email.trim();
-    if (!trimmedEmail) {
-      setFieldErrors({ email: "Email is required." });
-      return;
-    }
+      const trimmedEmail = email.trim();
+      if (!trimmedEmail) {
+        setFieldErrors({ email: "Email is required." });
+        return;
+      }
 
-    if (!password) {
-      setFieldErrors({ password: "Password is required." });
-      return;
-    }
+      if (!password) {
+        setFieldErrors({ password: "Password is required." });
+        return;
+      }
 
-    if (!confirmPassword) {
-      setFieldErrors({ confirmPassword: "Confirm password is required." });
-      return;
-    }
+      if (!confirmPassword) {
+        setFieldErrors({ confirmPassword: "Confirm password is required." });
+        return;
+      }
 
-    if (password !== confirmPassword) {
-      setFieldErrors({ confirmPassword: "Passwords do not match." });
-      return;
-    }
+      if (password !== confirmPassword) {
+        setFieldErrors({ confirmPassword: "Passwords do not match." });
+        return;
+      }
 
-    setStatus("submitting");
-    const result = await request<null>("/api/auth/register", {
-      method: "POST",
-      body: { email: trimmedEmail, password, confirmPassword },
-    });
-
-    if (result.error) {
-      setFormError(result.error);
-      setFieldErrors({
-        email: getFieldError(result.error, "email") ?? undefined,
-        password: getFieldError(result.error, "password") ?? undefined,
-        confirmPassword: getFieldError(result.error, "confirmPassword") ?? undefined,
+      setStatus("submitting");
+      const result = await request<null>("/api/auth/register", {
+        method: "POST",
+        body: { email: trimmedEmail, password, confirmPassword },
       });
+
+      if (result.error) {
+        setFormError(result.error);
+        setFieldErrors({
+          email: getFieldError(result.error, "email") ?? undefined,
+          password: getFieldError(result.error, "password") ?? undefined,
+          confirmPassword: getFieldError(result.error, "confirmPassword") ?? undefined,
+        });
+        setStatus("idle");
+        return;
+      }
+
       setStatus("idle");
-      return;
-    }
+      setFlashToast({
+        variant: "success",
+        title: "Konto utworzone",
+        message: "Mozesz sie teraz zalogowac. Jesli wymagane, sprawdz skrzynke email.",
+      });
 
-    setStatus("idle");
-    setFlashToast({
-      variant: "success",
-      title: "Konto utworzone",
-      message: "Mozesz sie teraz zalogowac. Jesli wymagane, sprawdz skrzynke email.",
-    });
-
-    if (typeof window !== "undefined") {
-      window.location.assign("/login");
-    }
-  }, [confirmPassword, email, password, request]);
+      if (typeof window !== "undefined") {
+        window.location.assign("/login");
+      }
+    },
+    [confirmPassword, email, password, request]
+  );
 
   return (
     <main className="min-h-screen bg-muted/40 px-6 py-10">
@@ -101,9 +104,7 @@ export const RegisterView = () => {
       >
         <header className="space-y-2">
           <h1 className="text-2xl font-semibold">Utworz konto</h1>
-          <p className="text-sm text-muted-foreground">
-            Zarejestruj sie, aby uzyskac dostep do generatora i planow.
-          </p>
+          <p className="text-sm text-muted-foreground">Zarejestruj sie, aby uzyskac dostep do generatora i planow.</p>
         </header>
 
         <section className="space-y-3">
