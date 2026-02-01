@@ -1,0 +1,19 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Setup Node and install dependencies
+        uses: ./.github/actions/setup-node
+      - name: Run unit tests
+        run: npm test
+      - name: Build for production
+        run: npm run build

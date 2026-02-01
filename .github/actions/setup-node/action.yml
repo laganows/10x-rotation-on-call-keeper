@@ -1,0 +1,15 @@
+name: Setup Node and install dependencies
+description: Checkout repo, setup Node.js from .nvmrc, and run npm ci.
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version-file: ".nvmrc"
+        cache: "npm"
+    - name: Install dependencies
+      shell: bash
+      run: npm ci
