@@ -1,11 +1,13 @@
 import { useMemo } from "react";
 
+import type { PlansListQuery } from "@/types";
+
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { usePlansList } from "@/components/hooks/usePlansList";
 
 export const PlansListView = () => {
-  const query = useMemo(
+  const query = useMemo<PlansListQuery>(
     () => ({
       sort: "createdAt",
       order: "desc",
@@ -18,7 +20,7 @@ export const PlansListView = () => {
   const { items, total, loading, error, refetch } = usePlansList(query);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-test-id="plans-list-view">
       <header className="space-y-2">
         <h1 className="text-2xl font-semibold">Plans</h1>
         <p className="text-sm text-muted-foreground">Review saved on-call plans.</p>
@@ -38,7 +40,7 @@ export const PlansListView = () => {
         </div>
       ) : null}
 
-      <section className="rounded-lg border bg-card p-4 shadow-sm">
+      <section className="rounded-lg border bg-card p-4 shadow-sm" data-test-id="plans-list-section">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Saved plans</h2>
           <span className="text-sm text-muted-foreground">Total: {total}</span>
@@ -57,7 +59,7 @@ export const PlansListView = () => {
 
         {items.length > 0 ? (
           <div className="mt-4">
-            <Table>
+            <Table data-test-id="plans-table">
               <TableHeader>
                 <TableRow>
                   <TableHead scope="col">Start date</TableHead>
@@ -68,12 +70,12 @@ export const PlansListView = () => {
               </TableHeader>
               <TableBody>
                 {items.map((plan) => (
-                  <TableRow key={plan.planId}>
+                  <TableRow key={plan.planId} data-test-id={`plan-row-${plan.planId}`}>
                     <TableCell>{plan.startDate}</TableCell>
                     <TableCell>{plan.endDate}</TableCell>
                     <TableCell>{new Date(plan.createdAt).toLocaleString()}</TableCell>
                     <TableCell>
-                      <Button asChild size="sm" variant="outline">
+                      <Button asChild size="sm" variant="outline" data-test-id={`plan-open-${plan.planId}`}>
                         <a href={`/plans/${plan.planId}`}>Open</a>
                       </Button>
                     </TableCell>

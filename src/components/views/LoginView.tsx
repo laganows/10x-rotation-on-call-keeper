@@ -66,9 +66,10 @@ export const LoginView = () => {
   );
 
   return (
-    <main className="min-h-screen bg-muted/40 px-6 py-10">
+    <main className="min-h-screen bg-muted/40 px-6 py-10" data-test-id="login-view">
       <form
         onSubmit={handleSubmit}
+        data-test-id="login-form"
         className="mx-auto flex w-full max-w-lg flex-col gap-6 rounded-lg border bg-card p-8 text-card-foreground shadow-sm"
       >
         <div className="flex items-center gap-3">
@@ -94,6 +95,7 @@ export const LoginView = () => {
               autoComplete="email"
               required
               disabled={isLoading || isSubmitting}
+              data-test-id="login-email-input"
             />
           </div>
           <div className="space-y-1">
@@ -105,13 +107,21 @@ export const LoginView = () => {
               autoComplete="current-password"
               required
               disabled={isLoading || isSubmitting}
+              data-test-id="login-password-input"
             />
           </div>
         </section>
 
-        {errorMessage ? <SectionMessage variant="error" title="Logowanie nieudane" message={errorMessage} /> : null}
+        {errorMessage ? (
+          <SectionMessage
+            variant="error"
+            title="Logowanie nieudane"
+            message={errorMessage}
+            data-test-id="login-error"
+          />
+        ) : null}
 
-        <Button type="submit" disabled={isLoading || isSubmitting}>
+        <Button type="submit" disabled={isLoading || isSubmitting} data-test-id="login-submit">
           {isSubmitting ? "Logowanie..." : "Zaloguj sie"}
         </Button>
 

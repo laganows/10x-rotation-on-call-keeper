@@ -119,7 +119,7 @@ export const GeneratorView = () => {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8" data-test-id="generator-view">
       <header className="space-y-2">
         <h1 className="text-2xl font-semibold">Generator</h1>
         <p className="text-sm text-muted-foreground">
@@ -127,8 +127,8 @@ export const GeneratorView = () => {
         </p>
       </header>
 
-      <section className="rounded-lg border bg-card p-6 shadow-sm">
-        <form onSubmit={handleGenerate} className="space-y-4">
+      <section className="rounded-lg border bg-card p-6 shadow-sm" data-test-id="generator-form-section">
+        <form onSubmit={handleGenerate} className="space-y-4" data-test-id="generator-form">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-1">
               <Label htmlFor="startDate">Start date (UTC)</Label>
@@ -139,6 +139,7 @@ export const GeneratorView = () => {
                 value={startDate}
                 onChange={(event) => setStartDate(event.target.value)}
                 aria-invalid={Boolean(errors.startDate)}
+                data-test-id="generator-start-date"
               />
               {errors.startDate ? (
                 <p className="text-xs text-destructive" role="alert">
@@ -155,6 +156,7 @@ export const GeneratorView = () => {
                 value={endDate}
                 onChange={(event) => setEndDate(event.target.value)}
                 aria-invalid={Boolean(errors.endDate)}
+                data-test-id="generator-end-date"
               />
               {errors.endDate ? (
                 <p className="text-xs text-destructive" role="alert">
@@ -169,7 +171,7 @@ export const GeneratorView = () => {
             </p>
           ) : null}
           <div className="flex flex-wrap items-center gap-3">
-            <Button type="submit" disabled={previewStatus === "loading"}>
+            <Button type="submit" disabled={previewStatus === "loading"} data-test-id="generator-preview-button">
               Generate preview
             </Button>
             <span className="text-xs text-muted-foreground">Dates use UTC (YYYY-MM-DD).</span>
@@ -186,7 +188,7 @@ export const GeneratorView = () => {
       </section>
 
       {preview ? (
-        <section className="space-y-6 rounded-lg border bg-card p-6 shadow-sm">
+        <section className="space-y-6 rounded-lg border bg-card p-6 shadow-sm" data-test-id="generator-preview">
           <header className="space-y-1">
             <h2 className="text-lg font-semibold">Review</h2>
             <p className="text-sm text-muted-foreground">
@@ -201,7 +203,7 @@ export const GeneratorView = () => {
             </div>
           ) : null}
 
-          <Table>
+          <Table data-test-id="generator-preview-assignments">
             <TableHeader>
               <TableRow>
                 <TableHead scope="col">Day</TableHead>
@@ -210,7 +212,10 @@ export const GeneratorView = () => {
             </TableHeader>
             <TableBody>
               {assignments.map((assignment) => (
-                <TableRow key={assignment.day}>
+                <TableRow
+                  key={assignment.day}
+                  data-test-id={`preview-assignment-${assignment.memberId ?? "unassigned"}`}
+                >
                   <TableCell>{assignment.day}</TableCell>
                   <TableCell>
                     {assignment.memberId ? (
@@ -225,11 +230,15 @@ export const GeneratorView = () => {
           </Table>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <div className="rounded-md border bg-background p-4">
+            <div className="rounded-md border bg-background p-4" data-test-id="generator-member-counters">
               <h3 className="text-sm font-semibold">Member counters</h3>
               <div className="mt-3 space-y-2 text-sm">
                 {preview.counters.map((counter) => (
-                  <div key={counter.memberId} className="flex flex-wrap justify-between gap-2">
+                  <div
+                    key={counter.memberId}
+                    className="flex flex-wrap justify-between gap-2"
+                    data-test-id={`member-counter-${counter.memberId}`}
+                  >
                     <span>{counter.displayName}</span>
                     <span className="text-muted-foreground">
                       saved {counter.savedCount} · preview {counter.previewCount} · total {counter.effectiveCount}
@@ -238,7 +247,7 @@ export const GeneratorView = () => {
                 ))}
               </div>
             </div>
-            <div className="rounded-md border bg-background p-4">
+            <div className="rounded-md border bg-background p-4" data-test-id="generator-fairness-metrics">
               <h3 className="text-sm font-semibold">Fairness metrics</h3>
               <p className="mt-2 text-sm text-muted-foreground">
                 Historical inequality: {preview.inequality.historical}
@@ -250,7 +259,7 @@ export const GeneratorView = () => {
         </section>
       ) : null}
 
-      <section className="rounded-lg border bg-card p-6 shadow-sm">
+      <section className="rounded-lg border bg-card p-6 shadow-sm" data-test-id="generator-save">
         <header className="space-y-1">
           <h2 className="text-lg font-semibold">Save</h2>
           <p className="text-sm text-muted-foreground">
@@ -258,7 +267,7 @@ export const GeneratorView = () => {
           </p>
         </header>
         <div className="mt-4 flex flex-wrap items-center gap-3">
-          <Button onClick={handleSave} disabled={!canSave}>
+          <Button onClick={handleSave} disabled={!canSave} data-test-id="generator-save-button">
             Save plan
           </Button>
           {typeof rangeDays === "number" ? (

@@ -50,7 +50,7 @@ export const PlanDetailView = ({ planId }: PlanDetailViewProps) => {
 
   if (!isPlanIdValid) {
     return (
-      <div className="rounded-lg border bg-card p-6 shadow-sm">
+      <div className="rounded-lg border bg-card p-6 shadow-sm" data-test-id="plan-detail-invalid">
         <h1 className="text-2xl font-semibold">Plan details</h1>
         <SectionMessage
           variant="error"
@@ -68,7 +68,7 @@ export const PlanDetailView = ({ planId }: PlanDetailViewProps) => {
 
   if (planState.status === "error" && planState.error?.status === 404) {
     return (
-      <div className="rounded-lg border bg-card p-6 shadow-sm">
+      <div className="rounded-lg border bg-card p-6 shadow-sm" data-test-id="plan-detail-not-found">
         <h1 className="text-2xl font-semibold">Plan not found</h1>
         <SectionMessage
           title="Plan not found"
@@ -84,7 +84,7 @@ export const PlanDetailView = ({ planId }: PlanDetailViewProps) => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-test-id="plan-detail-view">
       <header className="space-y-2">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h1 className="text-2xl font-semibold">Plan details</h1>
@@ -124,7 +124,7 @@ export const PlanDetailView = ({ planId }: PlanDetailViewProps) => {
         </div>
       ) : null}
 
-      <section className="rounded-lg border bg-card p-4 shadow-sm">
+      <section className="rounded-lg border bg-card p-4 shadow-sm" data-test-id="plan-assignments">
         <h2 className="text-lg font-semibold">Assignments</h2>
         {assignments.length === 0 && assignmentsState.status === "success" ? (
           <div className="mt-3">
@@ -133,7 +133,7 @@ export const PlanDetailView = ({ planId }: PlanDetailViewProps) => {
         ) : null}
         {assignments.length > 0 ? (
           <div className="mt-4">
-            <Table>
+            <Table data-test-id="plan-assignments-table">
               <TableHeader>
                 <TableRow>
                   <TableHead scope="col">Day</TableHead>
@@ -146,7 +146,11 @@ export const PlanDetailView = ({ planId }: PlanDetailViewProps) => {
                     ? (memberLabelById.get(assignment.memberId) ?? assignment.memberId)
                     : null;
                   return (
-                    <TableRow key={`${assignment.day}-${assignment.memberId ?? "unassigned"}`}>
+                    <TableRow
+                      key={`${assignment.day}-${assignment.memberId ?? "unassigned"}`}
+                      data-test-id={`assignment-row-${assignment.memberId ?? "unassigned"}`}
+                      data-test-member={memberLabel ?? "UNASSIGNED"}
+                    >
                       <TableCell>{assignment.day}</TableCell>
                       <TableCell>
                         {assignment.memberId ? memberLabel : <span className="text-destructive">UNASSIGNED</span>}

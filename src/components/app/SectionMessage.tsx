@@ -1,8 +1,8 @@
-import type { ReactNode } from "react";
+import type { HTMLAttributes, ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
-interface SectionMessageProps {
+interface SectionMessageProps extends HTMLAttributes<HTMLDivElement> {
   title?: string;
   message: string;
   variant?: "info" | "error" | "success";
@@ -21,11 +21,18 @@ const titleStyles = {
   success: "text-emerald-700",
 };
 
-export const SectionMessage = ({ title, message, variant = "info", action }: SectionMessageProps) => {
+export const SectionMessage = ({
+  title,
+  message,
+  variant = "info",
+  action,
+  className,
+  ...rest
+}: SectionMessageProps) => {
   const role = variant === "error" ? "alert" : undefined;
 
   return (
-    <div className={cn("rounded-md border px-3 py-2 text-sm", variantStyles[variant])} role={role}>
+    <div className={cn("rounded-md border px-3 py-2 text-sm", variantStyles[variant], className)} role={role} {...rest}>
       {title ? <p className={cn("font-medium", titleStyles[variant])}>{title}</p> : null}
       <p className={title ? "mt-1" : undefined}>{message}</p>
       {action ? <div className="mt-2">{action}</div> : null}
