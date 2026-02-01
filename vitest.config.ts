@@ -9,5 +9,10 @@ export default defineConfig({
     globals: true,
     setupFiles: ["./tests/setup/vitest.setup.ts"],
     include: ["tests/unit/**/*.{test,spec}.{ts,tsx}"],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "lcov"],
+      reportsDirectory: "coverage/unit",
+    },
   },
 });
