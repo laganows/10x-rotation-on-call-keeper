@@ -1,7 +1,7 @@
 ## Rotation On‑Call Keeper (ROCK)
 
 A deterministic, fairness-focused web app for generating and saving **daily on‑call rotations** (00:00–23:59) with **member unavailability** and clear **fairness statistics**.
-
+change?
 ROCK is designed for a Tech Lead / on‑call owner who wants to stop doing manual scheduling, avoid mistakes, and keep the workload balanced over time.
 
 ### Table of contents
