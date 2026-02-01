@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 import { GeneratorPage, LoginPage, PlanDetailPage, PlansListPage } from "./pages";
+import { cleanupSupabase } from "./global-teardown";
 
 const formatUtcDate = (date: Date) => {
   const year = date.getUTCFullYear();
@@ -62,4 +63,8 @@ test("generate, save, and verify plan assignments", async ({ page }) => {
   await planDetailPage.waitForLoaded();
   await expect(planDetailPage.assignmentRowsForMember("Alice")).toHaveCount(3);
   await expect(planDetailPage.assignmentRowsForMember("Bob")).toHaveCount(4);
+});
+
+test.afterAll(async () => {
+  await cleanupSupabase();
 });

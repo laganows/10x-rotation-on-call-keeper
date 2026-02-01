@@ -37,6 +37,7 @@ export default defineConfig({
   },
   fullyParallel: true,
   reporter: [["list"]],
+  globalTeardown: "./tests/e2e/global-teardown.ts",
   use: {
     baseURL: "http://localhost:4321",
     trace: "on-first-retry",
