@@ -1,0 +1,62 @@
+name: Master Deploy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Setup Node and install dependencies
+        uses: ./.github/actions/setup-node
+      - name: Run lint
+        run: npm run lint
+
+  unit-test:
+    runs-on: ubuntu-latest
+    needs: lint
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Setup Node and install dependencies
+        uses: ./.github/actions/setup-node
+      - name: Run unit tests with coverage
+        run: npm run test:unit -- --run --coverage
+      - name: Upload unit coverage
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: unit-coverage
+          path: coverage/unit
+          if-no-files-found: error
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [lint, unit-test]
+    environment: production
+    permissions:
+      contents: read
+    env:
+      PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
+      PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.PUBLIC_SUPABASE_ANON_KEY }}
+      PUBLIC_AUTH_REQUIRED: ${{ secrets.PUBLIC_AUTH_REQUIRED }}
+      DEFAULT_USER_ID: ${{ secrets.DEFAULT_USER_ID }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Setup Node and install dependencies
+        uses: ./.github/actions/setup-node
+      - name: Build for production
+        run: npm run build
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          wranglerVersion: "3"
+          command: pages deploy dist --project-name ${{ secrets.CLOUDFLARE_PAGES_PROJECT_NAME }} --branch master
